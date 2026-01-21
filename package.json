@@ -1,0 +1,32 @@
+{
+  "name": "cc-guide",
+  "version": "1.0.0",
+  "description": "Claude Code skills and guides for autonomous AI-assisted development",
+  "main": "index.js",
+  "bin": {
+    "cc-add-skill": "./bin/add-skill.js"
+  },
+  "scripts": {
+    "add-skill": "node bin/add-skill.js"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "ai",
+    "prd",
+    "ralph-tui",
+    "autonomous",
+    "development"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ansarali41/cc-guide.git"
+  },
+  "files": [
+    "bin/",
+    "skills/",
+    "templates/"
+  ]
+}

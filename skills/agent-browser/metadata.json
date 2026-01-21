@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "organization": "Ansar Ali",
+  "date": "January 2026",
+  "abstract": "Headless browser automation CLI for AI agents. Provides commands for navigation, element interaction, form filling, screenshots, web scraping, and E2E testing. Essential for UI verification during Ralph loop execution. Supports session isolation, tab management, and network interception.",
+  "references": [
+    "https://github.com/ansarali41/cc-guide",
+    "https://agent-browser.dev"
+  ]
+}

@@ -1,0 +1,286 @@
+---
+name: prd
+description: Create self-verifying PRDs for autonomous execution. Interviews users to gather requirements, then generates structured prd.json with phased implementation and appropriate testing strategies. Supports 7 task categories with type-specific workflows. Use when user says "create a prd", "prd for", "plan a feature", "plan this", "write prd", or wants to plan any multi-step implementation work.
+user-invocable: true
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Write
+  - Edit
+  - TodoWrite
+  - AskUserQuestion
+  - Bash
+  - Task
+---
+
+# PRD Creation Skill
+
+Create self-verifying PRDs for autonomous execution. This skill guides you through interviewing users and generating structured PRDs.
+
+## Core Philosophy
+
+You are intelligent. These guidelines inform your thinking - they don't constrain it.
+
+- **Adapt to the user** - Every project is different. Adjust your approach.
+- **Think independently** - You decide what questions to ask and when to stop.
+- **Verify, don't assume** - Challenge assumptions and uncover edge cases.
+- **Principles over prescriptions** - Apply mental models, not rigid scripts.
+
+For comprehensive reference material, read `AGENTS.md`. For specific guidance, reference the `interview/` and `categories/` directories.
+
+---
+
+## The Interview Process
+
+Your goal: Extract enough information to create a PRD that an AI agent can execute successfully.
+
+### Phase 1: Identify Task Type
+
+Start by understanding what kind of work this is. Use AskUserQuestion with these categories:
+
+| Category | Use For |
+|----------|---------|
+| Feature Development | New features, enhancements, integrations |
+| Bug Fixing | Single bugs, multiple bugs, regressions |
+| Research & Planning | Exploration, architecture decisions, spikes |
+| Quality Assurance | Testing, code review, security audits |
+| Maintenance | Docs, cleanup, refactoring, optimization |
+| DevOps | Deployment, CI/CD, infrastructure |
+| General | Anything else |
+
+For detailed category guidance, see `categories/_overview.md` and individual category files.
+
+### Phase 2: Brain Dump
+
+Ask the user to share everything they know. Let information flow without imposing structure.
+
+What you need to understand:
+- The problem or goal
+- Context and background
+- Constraints and requirements
+- Who benefits and how
+- Files, systems, or areas involved
+- Sources to reference (docs, APIs, existing code)
+
+For guidance on gathering initial information, see `interview/brain-dump.md`.
+
+### Phase 3: Clarifying Questions
+
+This is where you think independently. Based on what they told you:
+
+- What gaps remain in your understanding?
+- What assumptions should you challenge?
+- What could go wrong that they haven't mentioned?
+- What decisions need their input vs. your judgment?
+
+The number of rounds depends on complexity. Simple tasks: 2-3 rounds. Complex features: 6-10 rounds. You decide when you have enough.
+
+For guidance on formulating questions, see `interview/clarifying-questions.md`.
+
+### Phase 4: Confirm Understanding
+
+Before generating, present your understanding:
+
+- What you think they want (problem + solution)
+- Your proposed approach
+- Rough phase breakdown
+- Testing and verification strategy
+
+Get explicit approval. If they want changes, adapt and re-present.
+
+For guidance on confirmation, see `interview/confirmation.md`.
+
+---
+
+## Category-Specific Guidance
+
+Each task type has different priorities and workflows. These are thinking frameworks, not templates.
+
+| Category | Key Focus | Reference |
+|----------|-----------|-----------|
+| Feature Development | Spec → Dependencies → Implementation → Verification | `categories/feature-development.md` |
+| Bug Fixing | Reproduce → Investigate → Fix → Verify | `categories/bug-fixing.md` |
+| Research & Planning | Requirements → Exploration → Design → Plan | `categories/research-planning.md` |
+| Quality Assurance | Scan → Test → Review → Improve | `categories/quality-assurance.md` |
+| Maintenance | Review → Identify → Clean → Verify | `categories/maintenance.md` |
+| DevOps | Plan → Test → Execute → Verify | `categories/devops.md` |
+| General | Understand → Break Down → Implement → Document | `categories/general.md` |
+
+---
+
+## Agent Browser CLI
+
+Use Agent Browser CLI throughout your work for any visual or interactive components.
+
+**When to use it:**
+- Research: Explore documentation, validate approaches
+- Features: Verify UI as you build, final validation against spec
+- Bugs: Reproduce issues, verify fixes
+- QA: Test user flows, visual validation
+
+**Quick reference:**
+```bash
+agent-browser open http://localhost:3000    # Start session
+agent-browser snapshot -i                   # Get interactive elements
+agent-browser click @e5                     # Click element
+agent-browser fill "[name='email']" "test"  # Fill input
+agent-browser screenshot verify.png         # Capture state
+agent-browser close                         # Clean up
+```
+
+This is emphasized throughout all category guidance - browser verification is essential for UI work.
+
+---
+
+## Story Structure
+
+Every story in the PRD needs these elements:
+
+### Required Components
+
+1. **Description** - WHAT is this and WHY does it matter? Not HOW.
+
+2. **Tasks** - Step-by-step instructions. Start with context gathering, end with verification.
+
+3. **Acceptance Criteria** - How do we know it's done? Specific, verifiable statements.
+
+4. **Notes** - File paths, patterns to follow, warnings about pitfalls.
+
+### Common Story Types
+
+| Type | Purpose |
+|------|---------|
+| Context Gathering | First story of any phase - read, understand, document approach |
+| Implementation | The actual work with verification steps |
+| Checkpoint | End of phase - verify everything, document learnings |
+| Browser Verification | For UI work - validate visually and interactively |
+| Final Validation | Run full test suite, build, ensure passing |
+| Report | Document what was done, decisions, issues |
+
+---
+
+## Verification & Testing
+
+Calibrate verification intensity based on risk:
+
+| Level | When | What |
+|-------|------|------|
+| Minimal | Research, docs | Accuracy check |
+| Light | Simple changes | Typecheck + lint |
+| Standard | Most work | Typecheck + lint + related tests |
+| Heavy | Complex, risky | Add integration tests |
+| Full | Checkpoints, final | Complete test suite + build |
+
+**UI work always gets browser verification** - if there's a visual component, verify it with Agent Browser CLI.
+
+---
+
+## Output Format
+
+Generate two files in `docs/prds/[name]/`:
+
+### PRD.md (Human-readable)
+
+```markdown
+# [Project Name]
+
+## Overview
+[What and why]
+
+## Goals
+[Specific outcomes]
+
+## Non-Goals
+[Out of scope]
+
+## Technical Approach
+[High-level strategy]
+
+## Phases
+[Phase breakdown with objectives]
+
+## Testing Strategy
+[How verification happens]
+
+## Risks & Mitigations
+[What could go wrong and how to handle it]
+
+## Success Criteria
+[How we know it's complete]
+```
+
+### prd.json (Machine-readable)
+
+```json
+{
+  "name": "kebab-case-name",
+  "description": "Context for all tasks. Motivation, goals, reference CLAUDE.md.",
+  "branchName": "type/feature-name",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Short descriptive title",
+      "description": "WHAT and WHY - not HOW",
+      "tasks": ["Step-by-step instructions"],
+      "acceptanceCriteria": ["Verifiable criteria"],
+      "dependsOn": [],
+      "notes": "File paths, patterns, warnings",
+      "passes": false
+    }
+  ]
+}
+```
+
+---
+
+## After Generation
+
+Provide the user with:
+
+### 1. What Was Created
+- File locations for PRD.md and prd.json
+- Number of stories and phases
+
+### 2. Execution Guidance
+- Create tmux session for long-running execution
+- Create feature branch from appropriate base
+- Consider git worktree for isolation (optional)
+- Ralph loop command to start execution
+
+### 3. Monitoring Notes
+- How to detach and monitor progress
+- When to check in (recommended intervals)
+- What BLOCKED states mean
+- Where to find progress updates
+
+### 4. Important Reminders
+- Keep machine running during execution
+- Check back at recommended intervals
+- Human input may be needed for BLOCKED tasks
+
+---
+
+## Completion Signals
+
+When executing PRD tasks, use these signals:
+
+| Signal | Meaning |
+|--------|---------|
+| `<promise>COMPLETE</promise>` | All criteria met, tests pass |
+| `<promise>BLOCKED</promise>` | Need human input to proceed |
+| `<promise>SKIP</promise>` | Non-critical, can't complete after genuine attempts |
+| `<promise>EJECT</promise>` | Critical failure requiring human intervention |
+
+---
+
+## Key Reminders
+
+- You are intelligent - use guidelines to think, not to follow blindly
+- Adapt to the user and their specific situation
+- Ask good questions, but know when to stop
+- Agent Browser CLI is essential for visual/interactive work
+- The goal is a PRD that an AI agent can execute successfully
+- When in doubt, verify. When uncertain, ask.
+
+For comprehensive guidance, read `AGENTS.md`.

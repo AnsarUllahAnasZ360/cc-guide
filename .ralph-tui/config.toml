@@ -1,0 +1,44 @@
+# Ralph TUI Configuration
+# See: ralph-tui config help
+
+configVersion = "2.0"
+
+# Core Settings
+tracker = "json"
+agent = "claude"
+maxIterations = 50
+iterationDelay = 2000
+autoCommit = true
+outputDir = ".ralph-tui/iterations"
+progressFile = ".ralph-tui/progress.md"
+
+# Custom prompt template (uses project templates folder)
+prompt_template = ".ralph-tui/templates/prompt.hbs"
+
+# Subagent tracing for debugging (off, minimal, moderate, full)
+subagentTracingDetail = "moderate"
+
+[trackerOptions]
+path = "./prd.json"
+
+[agentOptions]
+# Claude Opus 4.5 - the most capable model for complex reasoning
+model = "opus"
+printMode = "text"
+
+[errorHandling]
+# Strategy: "retry", "skip", or "abort"
+strategy = "retry"
+maxRetries = 3
+retryDelayMs = 5000
+continueOnNonZeroExit = false
+
+[rateLimitHandling]
+enabled = true
+maxRetries = 3
+baseBackoffMs = 5000
+recoverPrimaryBetweenIterations = true
+
+[notifications]
+enabled = true
+sound = "system"

@@ -1,0 +1,119 @@
+{{!-- Ralph TUI Prompt Template --}}
+{{!-- This template generates the prompt sent to Claude Code for each task --}}
+
+# Task Execution
+
+You are executing a task as part of an automated workflow managed by Ralph TUI.
+
+## Task Details
+
+**Task ID:** {{task.id}}
+**Title:** {{task.title}}
+{{#if task.description}}
+**Description:**
+{{task.description}}
+{{/if}}
+
+{{#if task.acceptanceCriteria}}
+## Acceptance Criteria
+
+{{#each task.acceptanceCriteria}}
+- [ ] {{this}}
+{{/each}}
+{{/if}}
+
+{{#if task.dependencies}}
+## Dependencies
+
+This task depends on the following completed tasks:
+{{#each task.dependencies}}
+- {{this}}
+{{/each}}
+{{/if}}
+
+{{#if task.labels}}
+## Labels
+
+{{#each task.labels}}
+- {{this}}
+{{/each}}
+{{/if}}
+
+## Execution Guidelines
+
+### Before Starting
+
+1. **Read the codebase context** - Review CLAUDE.md and any relevant documentation
+2. **Understand the scope** - Focus only on what this task requires
+3. **Check dependencies** - Ensure dependent tasks are complete
+4. **Plan your approach** - Think through the implementation before coding
+
+### During Implementation
+
+1. **Follow existing patterns** - Match the codebase style and conventions
+2. **Write tests first** - Use TDD when appropriate for the task type
+3. **Keep changes focused** - Only modify what's necessary for this task
+4. **Document as you go** - Add comments where logic isn't self-evident
+
+### Quality Checklist
+
+Before marking complete, verify:
+
+- [ ] All acceptance criteria are met
+- [ ] Tests pass (if applicable)
+- [ ] Code follows project conventions
+- [ ] No linting errors
+- [ ] No type errors (if TypeScript)
+- [ ] Changes are minimal and focused
+
+### Communication
+
+- If you encounter blockers, document them clearly
+- If requirements are ambiguous, make reasonable assumptions and document them
+- If the task cannot be completed, explain why
+
+## Project Context
+
+{{#if projectContext}}
+{{projectContext}}
+{{else}}
+Review the CLAUDE.md file in the project root for project-specific context and conventions.
+{{/if}}
+
+## Iteration History
+
+{{#if previousIterations}}
+### Previous Attempts
+
+{{#each previousIterations}}
+**Iteration {{@index}}:**
+- Status: {{this.status}}
+{{#if this.notes}}
+- Notes: {{this.notes}}
+{{/if}}
+{{#if this.blockers}}
+- Blockers: {{this.blockers}}
+{{/if}}
+{{/each}}
+
+Learn from previous iterations and address any noted issues.
+{{/if}}
+
+## Output Format
+
+When you complete the task, provide a summary including:
+
+1. **Changes Made** - List of files created/modified
+2. **Tests Added** - Any new tests written
+3. **Verification** - How you verified the acceptance criteria
+4. **Notes** - Any assumptions made or follow-up items
+
+---
+
+Begin executing the task now. Focus on quality and completeness.
+
+{{#if task.hints}}
+## Hints
+
+{{task.hints}}
+{{/if}}
