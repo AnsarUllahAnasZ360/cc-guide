@@ -17,16 +17,21 @@ Plus guides on how I actually use Claude Code.
 
 ```bash
 # Add the PRD skill
-npx cc-guide add-skill prd
+npx @ansarullahanas/cc-guide add-skill prd
 
 # Add the setup/audit skill
-npx cc-guide add-skill setup-claude
+npx @ansarullahanas/cc-guide add-skill setup-claude
 
 # Add the browser automation skill
-npx cc-guide add-skill agent-browser
+npx @ansarullahanas/cc-guide add-skill agent-browser
 
 # Or add all skills
-npx cc-guide add-skill --all
+npx @ansarullahanas/cc-guide add-skill --all
+```
+
+**Or via skills.sh:**
+```bash
+npx skills add AnsarUllahAnasZ360/cc-guide
 ```
 
 This copies the skills to your project's `.claude/skills/` folder.
