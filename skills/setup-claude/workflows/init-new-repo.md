@@ -700,9 +700,10 @@ Configure Ralph TUI for autonomous task execution with custom prompt template.
 
 ### Template Path Configuration
 
-Ralph TUI uses a `prompt_template` setting in `config.toml` to specify which prompt template file to use:
+Ralph TUI uses a `prompt_template` setting in config.toml to specify which prompt template file to use:
 
 ```toml
+# Custom prompt template path (relative to project root)
 prompt_template = ".ralph-tui/templates/prompt.hbs"
 ```
 
@@ -738,15 +739,22 @@ prompt_template = ".ralph-tui/templates/prompt.hbs"
    ls -la .ralph-tui/templates/prompt.hbs
    ```
 
-4. **Customize config.toml**:
+4. **Update prdPath in config.toml**:
+   ```bash
+   # Edit the [trackerOptions] section to point to your prd.json location
+   # Default: prdPath = "docs/prds/[name]/prd.json"
+   # Update [name] to match your actual PRD directory name
+   ```
+
+5. **Customize config.toml**:
    ```
    AskUserQuestion: "Ralph TUI preferences?"
    ├── Model: Opus (highest quality) / Sonnet (balanced)
    ├── Auto-commit: Yes / No
-   └── Max iterations: 25 (default)
+   └── Max iterations: 70 (default)
    ```
 
-5. **Verify setup**:
+6. **Verify setup**:
    ```bash
    ralph-tui --help
    ```
@@ -757,11 +765,12 @@ Before moving on, confirm:
 - [ ] `.ralph-tui/config.toml` exists
 - [ ] Template file exists at the path specified by `prompt_template`
 - [ ] If using custom template location, `prompt_template` is updated accordingly
-- [ ] Template file is the comprehensive version (190 lines, includes all sections)
+- [ ] `prdPath` in `[trackerOptions]` points to correct location
+- [ ] Template file is the working version (108 lines, simple format)
 
 ### Completion Criteria
 - `.ralph-tui/` directory created with proper structure
-- Config customized
+- Config customized with correct paths
 - Template path verified in config.toml
 - Move to Phase 13
 

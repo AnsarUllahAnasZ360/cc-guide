@@ -1,83 +1,43 @@
 # Ralph TUI Configuration
-# This file configures ralph-tui for autonomous task execution
+# Config version 2.1+ format for json tracker
+configVersion = "2.1"
 
-# Custom prompt template path (relative to project root)
-prompt_template = ".ralph-tui/templates/prompt.hbs"
-
-[general]
-# Model to use for task execution
-# Options: "opus" (highest quality), "sonnet" (balanced), "haiku" (fastest)
-model = "opus"
-
-# Maximum iterations per task before stopping
-maxIterations = 25
-
-# Automatically commit changes after each successful task
+# Agent and Tracker settings
+agent = "claude"
+tracker = "json"
+maxIterations = 70
+iterationDelay = 2000
 autoCommit = true
 
-# Show progress indicators during execution
-showProgress = true
+# Custom prompt template path (relative to project root)
+# IMPORTANT: This must point to the actual template file you want to use
+prompt_template = ".ralph-tui/templates/prompt.hbs"
 
-# Log level: "debug", "info", "warn", "error"
-logLevel = "info"
+# Subagent tracing for debugging (off, minimal, moderate, full)
+subagentTracingDetail = "moderate"
 
-[tasks]
-# Source for task definitions
-# Options: "beads" (GitHub issues), "json" (prd.json file)
-source = "beads"
+[agentOptions]
+# Claude Opus 4.5 - the most capable model for complex reasoning
+model = "opus"
+printMode = "text"
 
-# Path to prd.json when using json source
-jsonPath = ".ralph-tui/prd.json"
+[trackerOptions]
+# Path to prd.json when using json tracker
+prdPath = "docs/prds/[name]/prd.json"
 
-# GitHub repo for beads (owner/repo format)
-# beadsRepo = "owner/repo"
+[errorHandling]
+# Strategy: "retry", "skip", or "abort"
+strategy = "retry"
+maxRetries = 3
+retryDelayMs = 5000
+continueOnNonZeroExit = false
 
-[iterations]
-# Directory to store iteration outputs
-outputDir = ".ralph-tui/iterations"
+[rateLimitHandling]
+enabled = true
+maxRetries = 3
+baseBackoffMs = 5000
+recoverPrimaryBetweenIterations = true
 
-# Keep iteration history
-keepHistory = true
-
-# Maximum iterations to keep (0 = unlimited)
-maxHistory = 50
-
-[commit]
-# Commit message prefix
-prefix = "feat"
-
-# Include task ID in commit message
-includeTaskId = true
-
-# Sign commits with GPG
-signCommits = false
-
-[claude]
-# Path to Claude Code executable (leave empty for default)
-# executablePath = ""
-
-# Additional arguments to pass to Claude Code
-# additionalArgs = []
-
-# Timeout for Claude Code execution (in seconds)
-timeout = 600
-
-[hooks]
-# Run before starting a task
-# preTask = "echo 'Starting task'"
-
-# Run after completing a task
-# postTask = "npm run lint"
-
-# Run on task failure
-# onFailure = "echo 'Task failed'"
-
-[filters]
-# Only process tasks with these labels
-# includeLabels = ["ready", "approved"]
-
-# Skip tasks with these labels
-# excludeLabels = ["blocked", "wip"]
-
-# Only process tasks assigned to this user
-# assignee = "username"
+[notifications]
+enabled = true
+sound = "off"

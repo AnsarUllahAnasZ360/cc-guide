@@ -1030,8 +1030,6 @@ Notes: If approach doesn't work, create new stories for alternative
 
 ## prd.json Schema
 
-**IMPORTANT:** Ralph TUI's json tracker passes template variables as **strings**, not arrays.
-
 ```json
 {
   "name": "string - kebab-case identifier",
@@ -1042,7 +1040,7 @@ Notes: If approach doesn't work, create new stories for alternative
       "id": "string - unique identifier (US-001, US-002, etc.)",
       "title": "string - short descriptive title",
       "description": "string - what and why, not how. Include tasks formatted:\n\n**Tasks:**\n1. First task\n2. Second task\n3. Third task",
-      "acceptanceCriteria": "string - pre-formatted with checkboxes:\n- [ ] First criterion\n- [ ] Second criterion\n- [ ] Third criterion",
+      "acceptanceCriteria": ["array of strings - verifiable criteria"],
       "dependsOn": ["array of story IDs this depends on"],
       "notes": "string - file paths, patterns, warnings",
       "passes": "boolean - false initially, true when complete"
@@ -1051,10 +1049,10 @@ Notes: If approach doesn't work, create new stories for alternative
 }
 ```
 
-**Key differences for Ralph TUI compatibility:**
-- `tasks` field: Embed formatted tasks in `description` instead (Ralph TUI doesn't pass `tasks` to template)
-- `acceptanceCriteria`: Use pre-formatted string with checkboxes, not array
-- Template receives `acceptanceCriteria` as string, not array - no `{{#each}}` iteration possible
+**Key points for Ralph TUI template compatibility:**
+- `tasks` field: Embed formatted tasks in `description` (not passed separately to template)
+- `acceptanceCriteria`: Use array in JSON - template engine converts to formatted string automatically
+- Template uses `{{acceptanceCriteria}}` directly (no `{{#each}}` needed)
 
 ## PRD.md Structure
 
