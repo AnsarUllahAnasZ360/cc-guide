@@ -696,7 +696,21 @@ See: `components/claudemd-writing.md`, `templates/claude-md/complete-template.md
 ## Phase 12: Ralph TUI Setup
 
 ### Goal
-Configure Ralph TUI for autonomous task execution.
+Configure Ralph TUI for autonomous task execution with custom prompt template.
+
+### Template Path Configuration
+
+Ralph TUI uses a `prompt_template` setting in `config.toml` to specify which prompt template file to use:
+
+```toml
+prompt_template = ".ralph-tui/templates/prompt.hbs"
+```
+
+**Key points:**
+- The template path is relative to the project root
+- You can customize this path to any location
+- **If you change the template location, update `prompt_template` in config.toml to match**
+- If the template file doesn't exist at the specified path, Ralph TUI falls back to its default template
 
 ### Steps
 
@@ -705,13 +719,26 @@ Configure Ralph TUI for autonomous task execution.
    mkdir -p .ralph-tui/templates .ralph-tui/iterations
    ```
 
-2. **Copy templates**:
+2. **Copy config and template**:
    ```bash
+   # Copy config to .ralph-tui/
    cp templates/ralph-tui/config.toml .ralph-tui/
+
+   # Copy prompt.hbs to .ralph-tui/templates/
    cp templates/ralph-tui/prompt.hbs .ralph-tui/templates/
    ```
 
-3. **Customize config.toml**:
+3. **Verify template path in config.toml** (IMPORTANT if customizing):
+   ```bash
+   # Check the configured template path
+   grep "prompt_template" .ralph-tui/config.toml
+   # Should show: prompt_template = ".ralph-tui/templates/prompt.hbs"
+
+   # Verify the template file exists at that location
+   ls -la .ralph-tui/templates/prompt.hbs
+   ```
+
+4. **Customize config.toml**:
    ```
    AskUserQuestion: "Ralph TUI preferences?"
    ├── Model: Opus (highest quality) / Sonnet (balanced)
@@ -719,14 +746,23 @@ Configure Ralph TUI for autonomous task execution.
    └── Max iterations: 25 (default)
    ```
 
-4. **Verify setup**:
+5. **Verify setup**:
    ```bash
    ralph-tui --help
    ```
 
+### Template Verification
+
+Before moving on, confirm:
+- [ ] `.ralph-tui/config.toml` exists
+- [ ] Template file exists at the path specified by `prompt_template`
+- [ ] If using custom template location, `prompt_template` is updated accordingly
+- [ ] Template file is the comprehensive version (190 lines, includes all sections)
+
 ### Completion Criteria
-- `.ralph-tui/` directory created
+- `.ralph-tui/` directory created with proper structure
 - Config customized
+- Template path verified in config.toml
 - Move to Phase 13
 
 ---

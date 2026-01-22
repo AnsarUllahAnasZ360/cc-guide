@@ -75,11 +75,16 @@ Understand the current state of the repository and its Claude configuration.
    [ -f ~/.claude/.mcp.json ] && cat ~/.claude/.mcp.json || true
    ```
 
-4. **Ralph TUI check**:
+4. **Ralph TUI check** (verify template setup):
    ```bash
    [ -d ".ralph-tui" ] && echo "Ralph TUI: configured" || echo "Ralph TUI: not configured"
    [ -f ".ralph-tui/config.toml" ] && echo "  config.toml: exists" || true
-   [ -f ".ralph-tui/templates/prompt.hbs" ] && echo "  prompt.hbs: exists" || true
+
+   # Check configured template path
+   [ -f ".ralph-tui/config.toml" ] && grep "prompt_template" .ralph-tui/config.toml || echo "  prompt_template: not set"
+
+   # Verify template exists at configured path
+   [ -f ".ralph-tui/templates/prompt.hbs" ] && echo "  prompt.hbs: exists at default location" || echo "  prompt.hbs: not at default location (may be custom path)"
    ```
 
 5. **Ralph loop prerequisites check**:
@@ -456,8 +461,11 @@ Apply fixes with user approval.
    - Update disabledMcpServers in .mcp.json
 
    **Set up Ralph TUI**:
-   - Create .ralph-tui/ structure
-   - Copy templates
+   - Create .ralph-tui/ structure with templates/ subdirectory
+   - Copy config.toml to .ralph-tui/
+   - Copy prompt.hbs to .ralph-tui/templates/
+   - Verify config.toml `prompt_template` setting matches your template location
+   - If using custom template path, update `prompt_template` in config.toml accordingly
 
 3. **Track all changes** for summary
 

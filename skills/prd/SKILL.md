@@ -316,22 +316,157 @@ Provide the user with:
 - File locations for PRD.md and prd.json
 - Number of stories and phases
 
-### 2. Execution Guidance
-- Create tmux session for long-running execution
-- Create feature branch from appropriate base
-- Consider git worktree for isolation (optional)
-- Ralph loop command to start execution
+### 2. prd.json Conversion
 
-### 3. Monitoring Notes
-- How to detach and monitor progress
-- When to check in (recommended intervals)
-- What BLOCKED states mean
-- Where to find progress updates
+The PRD.md was generated with `[PRD]...[/PRD]` markers. To convert to prd.json:
 
-### 4. Important Reminders
-- Keep machine running during execution
-- Check back at recommended intervals
-- Human input may be needed for BLOCKED tasks
+**Option A: Manual conversion** (recommended for control):
+```bash
+# Create the directory
+mkdir -p docs/prds/[name]
+
+# The prd.json should be created manually from the PRD.md content
+# Use this structure:
+{
+  "name": "kebab-case-name",
+  "description": "Context from PRD.md overview section",
+  "branchName": "type/feature-name",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Story title from PRD",
+      "description": "Story description - what and why",
+      "tasks": ["Task 1", "Task 2", "..."],
+      "acceptanceCriteria": ["Criterion 1", "Criterion 2", "..."],
+      "dependsOn": [],
+      "notes": "Additional context, file paths, warnings",
+      "passes": false
+    }
+  ]
+}
+```
+
+**Option B: Use ralph-tui-create-json skill** (if available):
+This skill can parse the `[PRD]...[/PRD]` marked content and generate prd.json automatically.
+
+### 3. Execution Setup
+
+Once prd.json exists, set up for execution:
+
+**Step 1: Create a tmux session** (for long-running execution):
+```bash
+# Create a new tmux session named after your PRD
+tmux new-session -d -s prd-[name]
+
+# Attach to the session
+tmux attach-session -t prd-[name]
+```
+
+**Step 2: Create a feature branch**:
+```bash
+# Determine the base branch (usually main or develop)
+git checkout main  # or develop
+git pull
+
+# Create and checkout the feature branch
+git checkout -b [branch-name-from-prd]
+```
+
+**Optional: Use git worktree for isolation**:
+```bash
+# Create a worktree instead of a branch
+git worktree add ../[repo-name]-[name] [branch-name-from-prd]
+cd ../[repo-name]-[name]
+```
+
+**Step 3: Start the Ralph loop**:
+```bash
+# Navigate to your project directory (or worktree)
+cd /path/to/project
+
+# Start ralphdui with the PRD
+ralphdui --prd docs/prds/[name]/prd.json
+
+# When ralph-tui loads, press 's' to start the loop
+# Then press Ctrl+B, then D to detach from tmux
+```
+
+**Alternative: Run directly in tmux**:
+```bash
+# One command to create session and start ralphdui
+tmux new-session -d -s prd-[name] "ralphdui --prd docs/prds/[name]/prd.json"
+
+# Attach to see progress
+tmux attach-session -t prd-[name]
+
+# Once started with 's', detach with Ctrl+B, D
+```
+
+### 4. Monitoring Notes
+
+**To check progress**:
+```bash
+# Reattach to tmux session
+tmux attach-session -t prd-[name]
+
+# Detach again (leave it running)
+# Press Ctrl+B, then D
+
+# Check progress file
+cat .ralph-tui/progress.md
+
+# Check iteration logs
+ls -la .ralph-tui/iterations/
+```
+
+**Recommended check intervals**:
+- Simple projects: Every 30-60 minutes
+- Complex projects: Every 15-30 minutes initially, then as needed
+
+**Understanding BLOCKED states**:
+- BLOCKED means the AI needs human input
+- Reattach and provide the needed information
+- The loop will continue once you respond
+
+**Where progress is tracked**:
+| Location | Contains |
+|----------|----------|
+| `.ralph-tui/progress.md` | Accumulated learnings and patterns |
+| `.ralph-tui/iterations/` | Detailed logs from each iteration |
+| `.ralph-tui/state.json` | Current task and completion status |
+
+### 5. Troubleshooting
+
+**If ralphdui is not found**:
+```bash
+# Install ralph-tui globally
+cargo install ralph-tui
+
+# Or use via npx (if available)
+npx ralph-tui --prd docs/prds/[name]/prd.json
+```
+
+**If the loop gets stuck**:
+1. Reattach to tmux session
+2. Check what state it's in
+3. Provide input if BLOCKED
+4. If truly stuck, Ctrl+C to stop and restart
+
+**To start over**:
+```bash
+# Reset progress (keeps work, restarts loop)
+rm -rf .ralph-tui/
+ralphdui --prd docs/prds/[name]/prd.json
+```
+
+### 6. Important Reminders
+
+- **Keep machine running** during execution - the loop operates autonomously
+- **Check back at recommended intervals** - BLOCKED tasks need human input
+- **Human input may be needed** for ambiguous situations or decisions
+- **Work is committed automatically** after each completed task
+- **All tests must pass** for a task to be marked COMPLETE
+- **The loop continues** until all tasks are done or it encounters a BLOCKED state
 
 ---
 
