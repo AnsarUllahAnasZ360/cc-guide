@@ -1,6 +1,9 @@
 # Ralph TUI Configuration
 # This file configures ralph-tui for autonomous task execution
 
+# Custom prompt template path (relative to project root)
+prompt_template = ".ralph-tui/templates/prompt.hbs"
+
 [general]
 # Model to use for task execution
 # Options: "opus" (highest quality), "sonnet" (balanced), "haiku" (fastest)

@@ -286,6 +286,8 @@ For UI stories, also include:
 
 ### prd.json (Machine-readable)
 
+**IMPORTANT:** Ralph TUI's json tracker passes template variables as **strings**, not arrays.
+
 ```json
 {
   "name": "kebab-case-name",
@@ -295,9 +297,8 @@ For UI stories, also include:
     {
       "id": "US-001",
       "title": "Short descriptive title",
-      "description": "WHAT and WHY - not HOW",
-      "tasks": ["Step-by-step instructions"],
-      "acceptanceCriteria": ["Verifiable criteria"],
+      "description": "WHAT and WHY - not HOW. Include tasks embedded here:\n\n**Tasks:**\n1. First task\n2. Second task\n3. Third task",
+      "acceptanceCriteria": "- [ ] First criterion\n- [ ] Second criterion\n- [ ] Third criterion",
       "dependsOn": [],
       "notes": "File paths, patterns, warnings",
       "passes": false
@@ -305,6 +306,11 @@ For UI stories, also include:
   ]
 }
 ```
+
+**Key differences from standard JSON:**
+- `tasks` array → Embed formatted tasks in `description` instead
+- `acceptanceCriteria` array → Use pre-formatted string with checkboxes
+- Ralph TUI template receives `acceptanceCriteria` as a string, not an array
 
 ---
 
@@ -326,6 +332,7 @@ The PRD.md was generated with `[PRD]...[/PRD]` markers. To convert to prd.json:
 mkdir -p docs/prds/[name]
 
 # The prd.json should be created manually from the PRD.md content
+# IMPORTANT: Ralph TUI requires strings, not arrays for tasks/acceptanceCriteria
 # Use this structure:
 {
   "name": "kebab-case-name",
@@ -335,9 +342,8 @@ mkdir -p docs/prds/[name]
     {
       "id": "US-001",
       "title": "Story title from PRD",
-      "description": "Story description - what and why",
-      "tasks": ["Task 1", "Task 2", "..."],
-      "acceptanceCriteria": ["Criterion 1", "Criterion 2", "..."],
+      "description": "Story description - what and why\n\n**Tasks:**\n1. Task 1\n2. Task 2\n3. Task 3",
+      "acceptanceCriteria": "- [ ] Criterion 1\n- [ ] Criterion 2\n- [ ] Criterion 3",
       "dependsOn": [],
       "notes": "Additional context, file paths, warnings",
       "passes": false
