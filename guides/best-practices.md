@@ -1,127 +1,211 @@
-# Best Practices
+# Best Practices: Lessons Learned the Hard Way
 
-Lessons learned from running hundreds of Claude Code sessions and Ralph loops.
+Everything in this guide comes from real experience — mostly from making mistakes and figuring out why things broke.
 
-## Setup
+---
+
+## The Setup That Actually Works
 
 ### CLI First, MCP Last
 
-Every MCP adds tool definitions to Claude's context window. Context is expensive.
+This is the single most impactful lesson.
 
-**Before enabling any MCP, ask:**
-- Is there a CLI for this service?
-- Can Claude just run a bash command instead?
+Every MCP you enable adds tool definitions to Claude's context window. Context is expensive. More tools = less room for your actual work = slower, worse results.
 
-| Service | Use CLI | Don't Use MCP |
-|---------|---------|---------------|
+**The Rule:** Before enabling ANY MCP, ask "Is there a CLI for this?"
+
+| Service | CLI (Use This) | MCP (Avoid) |
+|---------|----------------|-------------|
 | GitHub | `gh` | github-mcp |
 | Vercel | `vercel` | vercel-mcp |
 | Supabase | `supabase` | supabase-mcp |
 | Stripe | `stripe` | stripe-mcp |
+| AWS | `aws` | aws-mcp |
+| Firebase | `firebase` | firebase-mcp |
+| Netlify | `netlify` | netlify-mcp |
 
-Keep MCP count under 10. Under 5 is better.
+**Recommended Limits:**
+- MCPs: Under 10 enabled (under 5 is better)
+- Total Tools: Under 80
+
+If you exceed these, Claude starts getting confused about which tool to use and burns tokens on tool selection.
 
 ### Context Window Management
 
-Recommended limits:
-- MCPs: under 10 enabled
-- Tools: under 80 total
+The context window is precious real estate. Treat it like expensive RAM — don't waste it.
 
-Every tool definition consumes tokens. More tools = less room for actual work.
+**Things that eat context:**
+- MCP tool definitions (each tool = ~200-500 tokens)
+- Long conversation history
+- Large file reads
+- Verbose CLAUDE.md files
+
+**How to preserve context:**
+1. Use `/clear` between unrelated tasks
+2. Keep CLAUDE.md concise (hundreds of lines, not thousands)
+3. Use `.claude/rules/` for detailed guidelines instead of cramming into CLAUDE.md
+4. Prefer CLIs over MCPs
 
 ### tmux Is Not Optional
 
-Long-running tasks need persistent sessions:
+For anything longer than a quick question, use tmux:
+
 ```bash
 # Start session
 tmux new-session -s project
 
-# Detach
+# Detach (work continues)
 Ctrl+b, d
 
-# Reattach
+# Reattach later
 tmux attach -t project
 
 # List sessions
 tmux list-sessions
 ```
 
+Without tmux:
+- Laptop sleep kills your work
+- SSH disconnect kills your work
+- Accidentally close terminal kills your work
+
+With tmux, the session persists through all of these.
+
 ### Worktrees for Parallel Work
 
-Can't run two Ralph loops on the same repo. Use worktrees:
+You can't run two Claude sessions on the same codebase effectively — they'll conflict over files.
+
+Git worktrees give you independent directories from the same repo:
+
 ```bash
+# Create worktree for feature work
 git worktree add ../project-feature feature-branch
+
+# Each worktree can have its own:
+# - Claude session
+# - tmux session
+# - Ralph loop
 ```
 
-Each worktree = independent directory = can run its own loop.
+This enables:
+- Main codebase: bug fixes
+- Worktree A: new feature
+- Worktree B: refactoring
 
-## PRD Writing
+All running simultaneously.
 
-### Be Specific
+---
 
-Bad: "Add user authentication"
+## PRD Writing: Where Success Is Determined
 
-Good: "Add email/password authentication using Clerk. Users should be able to sign up, sign in, and sign out. Protect the /dashboard route. Use Clerk's middleware pattern."
+### Be Painfully Specific
 
-### Verifiable Criteria
+**Bad:** "Add user authentication"
 
-Bad: "Authentication should work well"
+**Good:** "Add email/password authentication using Clerk. Users should be able to sign up, sign in, and sign out. Protect the /dashboard route using Clerk middleware. Show loading states during auth operations. Use the existing design system for all UI."
 
-Good:
-- User can sign up with email/password
-- User can sign in with existing account
-- User can sign out
+The specificity gap between these two examples is the difference between working code and garbage.
+
+### Acceptance Criteria Must Be Verifiable
+
+**Bad:** "Authentication should work well"
+
+**Good:**
+- User can sign up with valid email and password
+- User can sign in with existing credentials
+- User can sign out from the header menu
+- Invalid credentials show appropriate error messages
 - Unauthenticated users are redirected from /dashboard to /sign-in
-- All auth pages use the existing design system
+- Auth state persists across browser refresh
 
-### Task Ordering
+Every criterion should answer the question "How would I test this?"
 
-Dependencies matter:
-1. First: context gathering (read relevant files)
-2. Middle: implementation tasks
-3. Last: verification (run tests, check build)
+### Task Ordering Matters
+
+Always order tasks by dependency:
+
+1. **First:** Context gathering (read relevant files, understand patterns)
+2. **Second:** Core implementation (the actual work)
+3. **Third:** Edge cases and error handling
+4. **Last:** Verification (run tests, check build)
+
+Never put verification before implementation is complete. Never put implementation before understanding the codebase.
 
 ### Include Checkpoints
 
-Every phase should end with a verification task:
-- Run type check
-- Run tests
-- Build passes
-- Browser verification (for UI)
+Every phase should end with a verification story:
 
-## During Execution
+```json
+{
+  "id": "US-004",
+  "title": "Phase 1 Checkpoint",
+  "description": "Verify all Phase 1 work is complete before proceeding",
+  "tasks": [
+    "Run type check",
+    "Run lint",
+    "Run all tests",
+    "Verify build succeeds",
+    "Browser verify UI if applicable"
+  ],
+  "acceptanceCriteria": [
+    "No TypeScript errors",
+    "No lint errors",
+    "All tests pass",
+    "Build succeeds"
+  ]
+}
+```
 
-### Check Back Regularly
+Checkpoints catch issues early. It's cheaper to fix bugs at the checkpoint than after three more phases of work.
 
-Every 30-60 minutes:
-1. Is it BLOCKED?
-2. Check progress.md
-3. Review recent commits
+---
+
+## During Execution: Trust But Verify
+
+### Check Back Regularly, But Not Obsessively
+
+**Check every 30-60 minutes:**
+1. Is it BLOCKED? (needs your input)
+2. Is it making progress? (check recent commits)
+3. Is it going in circles? (same test failing 3+ times)
+
+If it's working, let it work. Micromanagement slows everything down.
 
 ### Handle BLOCKED Immediately
 
-BLOCKED means it needs you. Common causes:
+BLOCKED means Claude needs something only you can provide:
 - Missing environment variable
-- Need to approve a decision
-- External dependency issue
-- Unclear acceptance criteria
+- Decision between approaches
+- External service configuration
+- Unclear requirements
 
-Fix it and let the loop continue.
+Read what it's asking. Provide the answer. Let it continue.
+
+**Don't ignore BLOCKED signals.** A loop stuck on BLOCKED for hours is wasted compute time and wasted opportunity.
 
 ### Don't Over-Intervene
 
-The loop knows what it's doing. If it's making progress, let it work.
+The instinct is to "help" when you see Claude working. Resist it.
 
-Intervene only when:
+**Intervene only when:**
 - BLOCKED signal
 - Same test failing 3+ times
-- Clearly going in circles
+- Clearly going in circles (doing and undoing the same change)
+- Critical error (wrong file deleted, wrong branch, etc.)
 
-## Code Quality
+**Don't intervene when:**
+- It's taking longer than expected (patience)
+- It's taking a different approach than you would (diversity)
+- It made a small mistake but is fixing it (self-correction)
+
+---
+
+## Code Quality: Automation Is Your Friend
 
 ### Hooks for Automatic Formatting
 
-Configure `.claude/settings.json`:
+In `.claude/settings.json`:
+
 ```json
 {
   "hooks": {
@@ -136,91 +220,166 @@ Configure `.claude/settings.json`:
 }
 ```
 
-Now every file Claude touches gets auto-formatted.
+Now every file Claude touches gets auto-formatted. No more "fix formatting" commits.
 
-### CLAUDE.md Matters
+Other useful hooks:
 
-This is Claude's context for your project. Include:
-- Project description
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "biome check --write $CLAUDE_FILE_PATHS"
+          }
+        ]
+      }
+    ],
+    "PreCommit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run typecheck"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### CLAUDE.md Matters More Than You Think
+
+CLAUDE.md is loaded into every conversation. It's Claude's persistent memory of your project.
+
+**What belongs in CLAUDE.md:**
+- Project description (what it does, who it's for)
 - Key commands (dev, test, build, lint)
+- Project structure overview
 - Coding conventions
 - Things NOT to do
-- File structure overview
+- Current context (what you're working on)
 
-Bad CLAUDE.md = confused Claude = bad output.
+**What doesn't belong:**
+- Entire API documentation
+- Long code examples
+- History of changes
+- Detailed specifications (put these in PRDs)
 
-### Modular Rules
+Keep it concise. Hundreds of lines, not thousands.
 
-Don't dump everything in CLAUDE.md. Use `.claude/rules/`:
-- `security.md` - security guidelines
-- `coding-style.md` - style conventions
-- `testing.md` - testing requirements
+### Use Modular Rules
 
-## Common Mistakes
+Instead of one mega CLAUDE.md, split guidelines into `.claude/rules/`:
+
+```
+.claude/
+  rules/
+    security.md      # Security guidelines
+    testing.md       # Testing requirements
+    coding-style.md  # Style conventions
+    api-design.md    # API patterns
+```
+
+Claude loads these contextually. Asking about tests? It loads testing.md. Working on API? It loads api-design.md.
+
+This keeps context usage efficient.
+
+---
+
+## Common Mistakes (And How to Fix Them)
 
 ### 1. PRD Too Vague
 
-**Symptom:** Loop produces wrong implementation
+**Symptom:** Loop produces wrong implementation or goes in circles
 
-**Fix:** More specific PRD with clearer acceptance criteria
+**Fix:** Add specificity. Reference exact files, exact patterns, exact behavior.
 
-### 2. Context Missing
+Instead of "follow best practices," write "follow the pattern in src/components/forms/Input.tsx"
 
-**Symptom:** Claude doesn't follow project patterns
+### 2. Missing Context
 
-**Fix:** Update CLAUDE.md with project conventions
+**Symptom:** Claude doesn't follow project patterns, uses wrong conventions
+
+**Fix:** Update CLAUDE.md with project conventions. Add specific examples. Reference files to mimic.
 
 ### 3. Scope Too Big
 
-**Symptom:** Tasks taking forever, going in circles
+**Symptom:** Tasks take forever, loop seems stuck, going in circles
 
-**Fix:** Break into smaller user stories
+**Fix:** Break the PRD into smaller, independent stories. Each story should be completable in 15-30 minutes of AI work.
 
 ### 4. No Verification Steps
 
-**Symptom:** Bugs discovered late
+**Symptom:** Bugs discovered late, rework needed
 
-**Fix:** Add checkpoint tasks after each phase
+**Fix:** Add checkpoint stories after each phase. Include browser verification for all UI work.
 
 ### 5. MCP Overload
 
-**Symptom:** Claude seems slow, context errors
+**Symptom:** Claude seems slow, makes wrong tool choices, context errors
 
-**Fix:** Disable unused MCPs, switch to CLIs
+**Fix:** Disable unused MCPs. Convert to CLIs where possible. Aim for under 5 MCPs.
 
 ### 6. Ignoring BLOCKED
 
-**Symptom:** Loop stuck for hours
+**Symptom:** Loop stuck for hours with no progress
 
-**Fix:** Check regularly, fix blockers immediately
+**Fix:** Check regularly. When BLOCKED, read what's needed, provide it, continue.
+
+### 7. Not Using /clear
+
+**Symptom:** Claude confused by unrelated context, responses getting slower
+
+**Fix:** Use `/clear` when starting new tasks. The history isn't helping — it's hurting.
+
+---
 
 ## Mental Models
 
 ### You're the Architect
 
 Architects don't lay bricks. They:
-- Define what gets built (PRD)
-- Set constraints (rules, conventions)
-- Review the work (check-ins)
-- Make adjustments (unblock, redirect)
+1. **Define** what gets built (PRD)
+2. **Set constraints** (rules, conventions)
+3. **Review** the work (check-ins)
+4. **Adjust** (unblock, redirect)
+
+Your job is clarity, not typing.
 
 ### Trust But Verify
 
 The loop will do the work. Your job:
-- Set it up correctly
-- Monitor periodically
-- Intervene when needed
-- Review the output
+1. Set it up correctly (good PRD, proper tools)
+2. Monitor periodically (not obsessively)
+3. Intervene when needed (BLOCKED, circles, errors)
+4. Review the output (before shipping)
 
 ### Compound Learning
 
 Every loop teaches something. Document:
-- What worked
-- What didn't
+- What worked well
+- What didn't work
 - Patterns discovered
-- PRD improvements
+- PRD improvements for next time
 
-This knowledge improves future loops.
+This knowledge improves future loops. Bad loops aren't failures — they're tuition.
+
+### Context Is Expensive
+
+Treat context window like expensive RAM:
+- Don't waste it on unnecessary MCPs
+- Clear it when starting new work
+- Keep CLAUDE.md lean
+- Use modular rules
+
+More available context = better Claude responses.
+
+---
 
 ## Quick Reference
 
@@ -251,23 +410,48 @@ cat progress.md
 tmux list-sessions
 ```
 
-### Parallel Loops
+### Parallel Work
 ```bash
 # Create worktree
 git worktree add ../project-feature feature-branch
 
-# Start separate session
+# Start loop in new session
 tmux new-session -s feature -d "cd ../project-feature && ralph-tui run"
 ```
 
-### Tool Checks
+### Tool Verification
 ```bash
+# Check your tools
 claude --version
 gh --version
 tmux -V
 ralph-tui --version
 ```
 
+### Context Management
+```bash
+# Clear context
+/clear
+
+# Resume previous session
+/resume
+
+# Check stats
+/stats
+```
+
 ---
 
-**Remember:** The quality of your setup and PRD directly determines the quality of your output. Invest time upfront. Reap the benefits during execution.
+## The Bottom Line
+
+**The quality of your setup and PRD directly determines the quality of your output.**
+
+Invest time upfront:
+- Configure tools properly (CLI first, minimal MCPs)
+- Write specific PRDs (verifiable criteria, proper ordering)
+- Set up automation (hooks, rules)
+- Keep context lean (clear often, modular rules)
+
+Then trust the process. Check in periodically. Ship code.
+
+That's the system. It works.

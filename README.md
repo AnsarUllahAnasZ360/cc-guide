@@ -1,40 +1,46 @@
 # Claude Code Guide
 
+> *"Everything's coming up Milhouse!"*
+
 Skills and guides for autonomous AI-assisted development with Claude Code and Ralph loops.
 
-## What This Is
+---
 
-Three skills you can add to any project:
-- **`prd`** - Create PRDs that Claude can execute autonomously
-- **`setup-claude`** - Initialize or audit repositories for optimal Claude Code usage
-- **`agent-browser`** - Headless browser automation and E2E testing
+## What Is This?
 
-Plus guides on how I actually use Claude Code.
+You've seen the demos. People shipping entire products overnight. Loops running for hours. Features appearing while they slept.
+
+And you've thought: *"Why can't I do that?"*
+
+**This repository is for you.** The developer who feels one step behind. The founder with ideas but no time. The team where only one person "gets" AI.
+
+Three skills that make the complicated stuff simple:
+- **`/prd`** — Create PRDs through conversation, not writing
+- **`/setup-claude`** — Configure your repo optimally without reading 100 docs
+- **`/agent-browser`** — Browser automation for verifying UI actually works
+
+Plus guides on how to actually use Claude Code productively.
+
+---
 
 ## Quick Start
 
 ### Add Skills to Your Project
 
 ```bash
-# Add the PRD skill
-npx @ansarullahanas/cc-guide add-skill prd
-
-# Add the setup/audit skill
-npx @ansarullahanas/cc-guide add-skill setup-claude
-
-# Add the browser automation skill
-npx @ansarullahanas/cc-guide add-skill agent-browser
-
-# Or add all skills
+# Add all skills (recommended)
 npx @ansarullahanas/cc-guide add-skill --all
+
+# Or add individually
+npx @ansarullahanas/cc-guide add-skill prd
+npx @ansarullahanas/cc-guide add-skill setup-claude
+npx @ansarullahanas/cc-guide add-skill agent-browser
 ```
 
-**Or via skills.sh:**
+**Via skills.sh:**
 ```bash
 npx skills add AnsarUllahAnasZ360/cc-guide
 ```
-
-This copies the skills to your project's `.claude/skills/` folder.
 
 ### Use the Skills
 
@@ -44,13 +50,16 @@ In Claude Code:
 /prd                    # Create a PRD for a new feature
 /setup-claude init      # Set up a new repository
 /setup-claude audit     # Audit an existing repository
+/agent-browser          # Browser automation help
 ```
 
-## The Idea
+---
 
-Traditional: You code, AI helps, you iterate forever.
+## The Big Idea
 
-This way: You define the work, AI executes, you review.
+**Traditional:** You code, AI helps, you iterate forever.
+
+**This way:** You define the work, AI executes, you review.
 
 ```
 Traditional:          Ralph Loop:
@@ -60,6 +69,22 @@ Human → AI → Human    Human → PRD → AI Loop → Human Review
 ```
 
 **The quality of your PRD determines the quality of your output.**
+
+---
+
+## Why "Milhouse"?
+
+In the world of AI-assisted development:
+
+**Ralph Wiggum is the AI** — Confused, making mistakes, but never stopping. The AI is Ralph.
+
+**Milhouse is the human** — Trying hard, a little confused, hoping this time it works.
+
+This repository helps Milhouse win. Not by making you a prompt engineer, but by giving you skills that ask the right questions and make the right decisions.
+
+Read the full story: [What Is Milhouse?](./guides/what-is-milhouse.md)
+
+---
 
 ## What You Need
 
@@ -71,24 +96,54 @@ Human → AI → Human    Human → PRD → AI Loop → Human Review
 | Ralph TUI | `npm install -g ralph-tui` | Task orchestration |
 | Agent Browser | `npm install -g agent-browser` | Browser automation |
 
+---
+
 ## Guides
 
-- [My Claude Workflow](./guides/my-claude-workflow.md) - How I actually use Claude Code
-- [Ralph Loops Explained](./guides/ralph-loops-explained.md) - Running autonomous development loops
-- [Best Practices](./guides/best-practices.md) - Lessons learned
+Start here:
+
+| Guide | What You'll Learn |
+|-------|-------------------|
+| [What Is Milhouse?](./guides/what-is-milhouse.md) | The philosophy behind this repo |
+| [My Claude Workflow](./guides/my-claude-workflow.md) | How I actually use Claude Code daily |
+| [Ralph Loops Explained](./guides/ralph-loops-explained.md) | Running autonomous development loops |
+| [Best Practices](./guides/best-practices.md) | Lessons learned the hard way |
+
+---
 
 ## Skills
 
 ### PRD Skill (`/prd`)
 
 Creates self-verifying PRDs through an interview process:
+
 1. Identifies what type of task you're doing
 2. Extracts everything you know via brain dump
 3. Asks clarifying questions
 4. Confirms understanding
 5. Generates `PRD.md` and `prd.json`
 
-The output is a PRD that Ralph TUI can execute autonomously.
+**The output is a PRD that Ralph TUI can execute autonomously.**
+
+You don't write PRDs. You answer questions.
+
+### Setup Claude Skill (`/setup-claude`)
+
+Two modes:
+
+**Init** — For new repositories:
+- Environment & tools check
+- CLI discovery & authentication
+- MCP configuration (context-window aware)
+- Skills, subagents, rules, hooks setup
+- CLAUDE.md generation
+- Ralph TUI configuration
+
+**Audit** — For existing repositories:
+- Environment analysis
+- Gap analysis
+- Recommendations with interactive fixes
+- Context window optimization
 
 ### Agent Browser Skill (`/agent-browser`)
 
@@ -98,25 +153,48 @@ Headless browser automation for AI agents:
 - E2E testing workflows
 - Web scraping
 
-Essential for any task involving UI verification.
+**Essential for verifying that UI actually works**, not just that Claude says it works.
 
-### Setup Claude Skill (`/setup-claude`)
+---
 
-Two modes:
+## Key Concepts
 
-**Init** - For new repositories (13 phases):
-- Environment & tools check (including tmux)
-- CLI discovery & authentication
-- MCP configuration (context-window aware)
-- Skills, subagents, rules, hooks setup
-- CLAUDE.md generation
-- Ralph TUI configuration
+### CLI First, MCP Last
 
-**Audit** - For existing repositories (8 phases):
-- Environment analysis
-- CLI and context window audit
-- Gap analysis
-- Recommendations with interactive fixes
+CLIs don't consume context window. MCPs do.
+
+Before enabling any MCP:
+- Check if a CLI exists (`gh`, `vercel`, `supabase`, `stripe`)
+- Install and authenticate the CLI
+- Only use MCP when there's no CLI alternative
+
+Keep MCPs under 10. Under 5 is better.
+
+### tmux for Persistence
+
+Ralph loops run for hours. tmux means:
+- Sessions persist through SSH disconnects
+- You can detach and come back later
+- Multiple loops can run in parallel
+
+```bash
+tmux new-session -s feature
+ralph-tui run
+# Ctrl+b, d to detach
+# tmux attach -t feature to come back
+```
+
+### Worktrees for Parallelism
+
+Can't run two Ralph loops on the same codebase. Git worktrees fix this:
+
+```bash
+git worktree add ../project-feature-a feature-a
+```
+
+Each worktree can run its own tmux session with its own Ralph loop.
+
+---
 
 ## Repository Structure
 
@@ -140,9 +218,10 @@ cc-guide/
 │       └── SKILL.md          # CLI reference
 │
 ├── guides/
-│   ├── my-claude-workflow.md
-│   ├── ralph-loops-explained.md
-│   └── best-practices.md
+│   ├── what-is-milhouse.md        # Philosophy and purpose
+│   ├── my-claude-workflow.md      # Daily workflow
+│   ├── ralph-loops-explained.md   # Autonomous loops guide
+│   └── best-practices.md          # Lessons learned
 │
 ├── templates/
 │   └── prompt.hbs            # Ralph TUI prompt template
@@ -151,37 +230,49 @@ cc-guide/
     └── add-skill.js          # npx cc-guide add-skill
 ```
 
-## Key Concepts
+---
 
-### CLI First, MCP Last
+## The Workflow
 
-CLIs don't consume context window. MCPs do.
+```
+1. SETUP (once per project)
+   /setup-claude init
 
-Before enabling any MCP:
-- Check if a CLI exists (`gh`, `vercel`, `supabase`, `stripe`)
-- Install and authenticate the CLI
-- Only use MCP when there's no CLI alternative
+2. PLAN (once per feature)
+   /prd
 
-### tmux for Persistence
+3. BUILD (autonomous)
+   tmux new-session -s feature
+   ralph-tui run
+   Ctrl+b, d
 
-Ralph loops run for hours. tmux means:
-- Sessions persist through SSH disconnects
-- You can detach and come back later
-- Multiple loops can run in parallel
+4. MONITOR (periodic)
+   tmux attach -t feature
 
-### Worktrees for Parallelism
-
-Can't run two Ralph loops on the same codebase. Git worktrees fix this:
-```bash
-git worktree add ../project-feature-a feature-a
+5. SHIP
+   Review, merge, celebrate
 ```
 
-Each worktree can run its own tmux session with its own Ralph loop.
+---
+
+## Further Reading
+
+**Official:**
+- [Claude Code Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices) — From Anthropic
+- [Ralph Wiggum](https://ghuntley.com/ralph/) — Geoffrey Huntley's original technique
+- [Ralph TUI](https://github.com/subsy/ralph-tui) — Task orchestration tool
+
+**Community:**
+- [awesome-ralph](https://github.com/snwfdhmp/awesome-ralph) — Curated Ralph resources
+
+---
 
 ## License
 
-MIT - See [LICENSE](./LICENSE)
+MIT — See [LICENSE](./LICENSE)
 
 ---
 
 **The goal isn't to remove humans from development. It's to elevate humans from typists to architects.**
+
+*Everything's coming up Milhouse.*
