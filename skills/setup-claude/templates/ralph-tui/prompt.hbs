@@ -1,29 +1,23 @@
-{{!-- Ralph Loop Prompt Template --}}
+{{!-- Ralph Loop Prompt Template - Compact & Information-Dense --}}
 
-# {{prdName}}
-
-> {{prdDescription}}
-
-**Progress:** {{prdCompletedCount}} of {{prdTotalCount}} stories complete
-
-**Full PRD:** For complete project context (goals, architecture, testing strategy, all user stories), read the PRD.md file in the same directory as prd.json.
+{{#if prdName}}# {{prdName}}{{/if}}
+{{#if prdDescription}}> {{prdDescription}}{{/if}}
+{{#if prdCompletedCount}}**Progress:** {{prdCompletedCount}}/{{prdTotalCount}} stories{{/if}}
 
 ---
 
-{{#if codebasePatterns}}
-## Codebase Patterns (Study First)
-{{codebasePatterns}}
+## Task: {{taskId}} - {{taskTitle}}
 
----
+{{#if taskDescription}}
+### What & Why
+{{taskDescription}}
 {{/if}}
 
-## Current Task: {{taskId}} - {{taskTitle}}
-
-### Description
-{{taskDescription}}
-
+{{#if acceptanceCriteria}}
 ### Acceptance Criteria
+All must be true before COMPLETE:
 {{acceptanceCriteria}}
+{{/if}}
 
 {{#if notes}}
 ### Notes
@@ -31,77 +25,98 @@
 {{/if}}
 
 {{#if dependsOn}}
-### Prerequisites
-Requires: **{{dependsOn}}** - Review their outputs in `.ralph-tui/progress.md`
+### Dependencies
+Requires: **{{dependsOn}}** - check `.ralph-tui/progress.md` for their outputs.
 {{/if}}
 
 ---
 
 {{#if recentProgress}}
-## Recent Progress
+## Previous Iterations
 {{recentProgress}}
+{{/if}}
+
+{{#if codebasePatterns}}
+### Patterns Discovered
+{{codebasePatterns}}
+{{/if}}
 
 ---
-{{/if}}
 
 ## Workflow
 
-1. Study the PRD context above to understand the bigger picture
-2. Study `.ralph-tui/progress.md` for patterns, gotchas, and previous learnings
-3. Check if this task's work already exists - if so, verify and signal COMPLETE
-4. Implement this single story following acceptance criteria
-5. Run quality checks as specified in CLAUDE.md
-6. Commit: `feat: {{taskId}} - {{taskTitle}}`
-7. Document learnings in `.ralph-tui/progress.md`
-8. Signal completion
+1. **Context** - Read CLAUDE.md for project conventions and commands
+2. **Progress** - Check `.ralph-tui/progress.md` for patterns and decisions from earlier iterations
+3. **Execute** - Complete tasks in description, in order
+4. **Verify** - Run quality commands from CLAUDE.md, confirm all acceptance criteria pass
+5. **Commit** - Stage and commit with descriptive message
+6. **Document** - Add key learnings to `.ralph-tui/progress.md`
+7. **Signal** - Output completion signal
 
-### Documentation Format
-APPEND to `.ralph-tui/progress.md`:
-```
-## ✓ Iteration N - {{taskId}}: {{taskTitle}}
-- What was implemented
-- Files changed
-- **Learnings:** patterns, gotchas
----
-```
-
----
-
-## Loop Context
-
-You are operating autonomously in a Ralph loop. Each iteration:
-- Starts fresh with no memory of previous runs
-- Must read `.ralph-tui/progress.md` for context from previous iterations
-- Must signal completion to proceed to next task
+### Principles
+- Read existing code before modifying
+- Minimal, focused changes only
+- Follow established patterns
+- Back claims with file:line evidence
+- Tests MUST pass before COMPLETE
 
 ---
 
 ## Completion Signals
 
-**When all acceptance criteria are met:**
+**Done** - All criteria met, tests pass:
 ```
 <promise>COMPLETE</promise>
 ```
 
-**When blocked and need human input:**
+**Need human input**:
 ```
 <promise>BLOCKED</promise>
 Reason: [what you need]
 ```
 
-**When non-critical task cannot be completed:**
+**Can't complete, non-critical**:
 ```
 <promise>SKIP</promise>
-Reason: [why] | Attempted: [what you tried]
+Reason: [why]
+Attempted: [what you tried]
 ```
 
-**When critical failure requires human intervention:**
+**Critical failure**:
 ```
 <promise>EJECT</promise>
-Reason: [the issue] | Impact: [what's blocked]
+Reason: [the issue]
+Impact: [what's blocked]
 ```
 
-**Rules:**
-- Verify ALL acceptance criteria before signaling COMPLETE
-- NEVER signal COMPLETE if tests fail
-- If work already exists, verify it meets criteria → COMPLETE immediately
+---
+
+## Loop Awareness
+
+You're in an autonomous Ralph loop. Before working:
+1. Check if task work already exists
+2. If exists, verify against acceptance criteria
+3. If criteria met → signal COMPLETE immediately
+4. If not met → identify gap and complete only that
+
+**Never** signal COMPLETE with failing tests.
+
+### Context Sources
+
+| Location | Use When |
+|----------|----------|
+| `CLAUDE.md` | Commands, conventions, structure |
+| `.ralph-tui/progress.md` | Iteration learnings, patterns |
+| `.ralph-tui/iterations/` | Detailed logs from previous runs |
+
+### If Confused
+
+You don't need these every time - only investigate when stuck or need big picture:
+
+| Resource | Contains |
+|----------|----------|
+| PRD.md | Full requirements, scope, goals |
+| progress.md | What's been done, decisions made |
+| iterations/ | Complete output from each iteration |
+
+Trust the process. Each iteration should make measurable progress.

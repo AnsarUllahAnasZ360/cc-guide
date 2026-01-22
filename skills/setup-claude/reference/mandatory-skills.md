@@ -51,6 +51,31 @@ Browser automation is a common need across all web projects. Having this skill a
 
 ---
 
+## 3. Ralph Pre-Flight Skill
+
+**Purpose:** Validate Ralph TUI configuration before starting a loop.
+
+**Invocation:** `/ralph-preflight`
+
+**What it does:**
+- Checks for global CLAUDE.md conflicts
+- Validates config.toml and prompt_template paths
+- Verifies prd.json structure and template variable mapping
+- Detects common configuration issues
+- Provides ready-to-use launch commands
+
+**Source:** `cc-guide/skills/ralph-preflight/`
+
+**Installation:**
+```bash
+cp -r /path/to/cc-guide/skills/ralph-preflight .claude/skills/
+```
+
+**Why mandatory:**
+Running a Ralph loop with incorrect configuration wastes iterations and can produce confusing results. This pre-flight check catches issues before they cause problems.
+
+---
+
 ## Installation Flow
 
 ### Step 1: Locate cc-guide
@@ -88,6 +113,7 @@ ls -la /path/to/cc-guide/skills/agent-browser/SKILL.md
 mkdir -p .claude/skills
 cp -r /path/to/cc-guide/skills/prd .claude/skills/
 cp -r /path/to/cc-guide/skills/agent-browser .claude/skills/
+cp -r /path/to/cc-guide/skills/ralph-preflight .claude/skills/
 ```
 
 ### Step 4: Verify Installation
@@ -97,6 +123,7 @@ ls -la .claude/skills/
 # Should show:
 # prd/
 # agent-browser/
+# ralph-preflight/
 ```
 
 ---
@@ -109,6 +136,7 @@ If working on cc-guide itself or wanting live updates:
 mkdir -p .claude/skills
 ln -s /path/to/cc-guide/skills/prd .claude/skills/prd
 ln -s /path/to/cc-guide/skills/agent-browser .claude/skills/agent-browser
+ln -s /path/to/cc-guide/skills/ralph-preflight .claude/skills/ralph-preflight
 ```
 
 **Note:** Symlinks mean changes to cc-guide skills are reflected immediately.
@@ -142,6 +170,7 @@ After installation, verify skills work:
 # Check skill files exist
 cat .claude/skills/prd/SKILL.md | head -5
 cat .claude/skills/agent-browser/SKILL.md | head -5
+cat .claude/skills/ralph-preflight/SKILL.md | head -5
 ```
 
 Report:
@@ -156,5 +185,10 @@ Mandatory Skills Installed:
 - agent-browser
   Location: .claude/skills/agent-browser/
   Invocation: /agent-browser
+  Status: Ready
+
+- ralph-preflight
+  Location: .claude/skills/ralph-preflight/
+  Invocation: /ralph-preflight
   Status: Ready
 ```

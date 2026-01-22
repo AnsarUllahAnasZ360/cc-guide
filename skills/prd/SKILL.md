@@ -320,89 +320,56 @@ Provide the user with:
 - File locations for PRD.md and prd.json
 - Number of stories and phases
 
-### 2. prd.json Conversion
+### 2. Pre-Flight Check
 
-The PRD.md was generated with `[PRD]...[/PRD]` markers. To convert to prd.json:
+**IMPORTANT:** Before starting a Ralph loop, run the pre-flight check:
 
-**Option A: Manual conversion** (recommended for control):
-```bash
-# Create the directory
-mkdir -p docs/prds/[name]
-
-# The prd.json should be created manually from the PRD.md content
-# Use this structure:
-{
-  "name": "kebab-case-name",
-  "description": "Context from PRD.md overview section",
-  "branchName": "type/feature-name",
-  "userStories": [
-    {
-      "id": "US-001",
-      "title": "Story title from PRD",
-      "description": "Story description - what and why\n\n**Tasks:**\n1. Task 1\n2. Task 2\n3. Task 3",
-      "acceptanceCriteria": ["Criterion 1", "Criterion 2", "Criterion 3"],
-      "dependsOn": [],
-      "notes": "Additional context, file paths, warnings",
-      "passes": false
-    }
-  ]
-}
+```
+/ralph-preflight
 ```
 
-**Option B: Use ralph-tui-create-json skill** (if available):
-This skill can parse the `[PRD]...[/PRD]` marked content and generate prd.json automatically.
+This verifies:
+- No global CLAUDE.md conflict
+- Config and template paths are correct
+- prd.json structure is valid
+- Template variables will map correctly
 
 ### 3. Execution Setup
 
-Once prd.json exists, set up for execution:
+Once prd.json exists and pre-flight passes:
 
-**Step 1: Create a tmux session** (for long-running execution):
+**Option A: Simple Branch (recommended for single feature)**
 ```bash
-# Create a new tmux session named after your PRD
-tmux new-session -d -s prd-[name]
-
-# Attach to the session
-tmux attach-session -t prd-[name]
-```
-
-**Step 2: Create a feature branch**:
-```bash
-# Determine the base branch (usually main or develop)
-git checkout main  # or develop
-git pull
-
-# Create and checkout the feature branch
+# 1. Create feature branch
 git checkout -b [branch-name-from-prd]
+
+# 2. Start Ralph in tmux
+tmux new-session -d -s ralph-[name] "ralph-tui run --prd docs/prds/[name]/prd.json"
+tmux attach-session -t ralph-[name]
+
+# 3. Press 's' to start, then Ctrl+B D to detach
 ```
 
-**Optional: Use git worktree for isolation**:
+**Option B: Git Worktree (for parallel development)**
 ```bash
-# Create a worktree instead of a branch
-git worktree add ../[repo-name]-[name] [branch-name-from-prd]
-cd ../[repo-name]-[name]
+# 1. Create worktree with new branch
+git worktree add ../[repo]-[name] -b [branch-name-from-prd]
+cd ../[repo]-[name]
+
+# 2. Copy .ralph-tui config if not using shared config
+# (worktrees share git but have separate working directories)
+
+# 3. Start Ralph in tmux
+tmux new-session -d -s ralph-[name] "ralph-tui run --prd docs/prds/[name]/prd.json"
+tmux attach-session -t ralph-[name]
 ```
 
-**Step 3: Start the Ralph loop**:
-```bash
-# Navigate to your project directory (or worktree)
-cd /path/to/project
-
-# Start ralphdui with the PRD
-ralphdui --prd docs/prds/[name]/prd.json
-
-# When ralph-tui loads, press 's' to start the loop
-# Then press Ctrl+B, then D to detach from tmux
+**Ask user:**
 ```
-
-**Alternative: Run directly in tmux**:
-```bash
-# One command to create session and start ralphdui
-tmux new-session -d -s prd-[name] "ralphdui --prd docs/prds/[name]/prd.json"
-
-# Attach to see progress
-tmux attach-session -t prd-[name]
-
-# Once started with 's', detach with Ctrl+B, D
+AskUserQuestion: "How do you want to run this?"
+├── "Simple branch" (Recommended) - Single feature in current directory
+├── "Git worktree" - Parallel development in isolated directory
+└── "Just show me the commands" - Manual setup
 ```
 
 ### 4. Monitoring Notes

@@ -30,9 +30,35 @@ Create a todo list with these 13 phases:
 ## Phase 1: Environment & Global Tools Check
 
 ### Goal
-Ensure required global tools are installed and up-to-date.
+Ensure required global tools are installed, up-to-date, and no global config conflicts exist.
 
-### Required Tools
+### 1.1 Global CLAUDE.md Conflict Check (CRITICAL)
+
+**Why this matters:** Global `~/.claude/CLAUDE.md` can override local project `CLAUDE.md` during Ralph loops, causing the model to receive wrong project context.
+
+```bash
+# Check for global CLAUDE.md
+if [ -f ~/.claude/CLAUDE.md ]; then
+  echo "⚠ WARNING: Global CLAUDE.md found at ~/.claude/CLAUDE.md"
+  echo "Content preview:"
+  head -20 ~/.claude/CLAUDE.md
+  echo "---"
+  wc -l ~/.claude/CLAUDE.md
+else
+  echo "✓ No global CLAUDE.md (good - local will be used)"
+fi
+```
+
+**If global CLAUDE.md exists**, ask user:
+```
+AskUserQuestion: "Global CLAUDE.md detected. This can override your project's local CLAUDE.md during Ralph loops."
+├── "Rename to .bak" (Recommended) → mv ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.bak
+├── "Delete it" → rm ~/.claude/CLAUDE.md
+├── "Keep it" → Continue (may cause issues)
+└── "View full contents first" → Show file, then re-ask
+```
+
+### 1.2 Required Tools
 
 | Tool | Check Command | Purpose |
 |------|---------------|---------|
@@ -68,7 +94,13 @@ Ensure required global tools are installed and up-to-date.
    Global Tools Status
    ═══════════════════════════════════════════════════════════════════════════
 
-   Tool               Version         Status
+   Global Config
+   ───────────────────────────────────────────────────────────────────────────
+   ~/.claude/CLAUDE.md    ✓ Not found (local will be used)
+                          OR
+                          ⚠ Found (may override local - action taken)
+
+   Tools
    ───────────────────────────────────────────────────────────────────────────
    Claude Code        1.2.3           ✓ Installed
    GitHub CLI         2.40.0          ✓ Installed
@@ -99,12 +131,13 @@ Ensure required global tools are installed and up-to-date.
 
    # Ralph TUI
    npm install -g ralph-tui
-   # Or follow: https://github.com/ralphclaude/ralph-tui
+   # Or follow: https://github.com/subsy/ralph-tui
    ```
 
 See: `components/tools-installation.md` for detailed guidance.
 
 ### Completion Criteria
+- Global CLAUDE.md conflict resolved (if existed)
 - All required tools installed OR user chose to skip
 - Move to Phase 2
 
@@ -696,22 +729,23 @@ See: `components/claudemd-writing.md`, `templates/claude-md/complete-template.md
 ## Phase 12: Ralph TUI Setup
 
 ### Goal
-Configure Ralph TUI for autonomous task execution with custom prompt template.
+Configure Ralph TUI for autonomous task execution with custom prompt template and verify all paths are correct.
 
-### Template Path Configuration
+### Critical Configuration Points
 
-Ralph TUI uses a `prompt_template` setting in config.toml to specify which prompt template file to use:
+Ralph TUI requires several files to work correctly together:
 
-```toml
-# Custom prompt template path (relative to project root)
-prompt_template = ".ralph-tui/templates/prompt.hbs"
-```
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| config.toml | `.ralph-tui/config.toml` | Main configuration |
+| prompt.hbs | Path from `prompt_template` | Prompt template |
+| prd.json | Path from `prdPath` | Task definitions |
+| progress.md | `.ralph-tui/progress.md` | Cross-iteration memory |
 
-**Key points:**
-- The template path is relative to the project root
-- You can customize this path to any location
-- **If you change the template location, update `prompt_template` in config.toml to match**
-- If the template file doesn't exist at the specified path, Ralph TUI falls back to its default template
+**Common failure modes:**
+1. `prompt_template` path doesn't match actual file location → falls back to default template
+2. Global CLAUDE.md overrides local → wrong project context (checked in Phase 1)
+3. Tasks in prd.json not in description field → tasks don't render in prompt
 
 ### Steps
 
@@ -729,49 +763,103 @@ prompt_template = ".ralph-tui/templates/prompt.hbs"
    cp templates/ralph-tui/prompt.hbs .ralph-tui/templates/
    ```
 
-3. **Verify template path in config.toml** (IMPORTANT if customizing):
+3. **Verify template is being used** (CRITICAL):
    ```bash
-   # Check the configured template path
-   grep "prompt_template" .ralph-tui/config.toml
-   # Should show: prompt_template = ".ralph-tui/templates/prompt.hbs"
+   # Run ralph-tui template show to see where it's loading from
+   ralph-tui template show | head -10
 
-   # Verify the template file exists at that location
-   ls -la .ralph-tui/templates/prompt.hbs
+   # Should show content from YOUR template, not the default
+   # If it shows different content, the path is wrong
    ```
 
-4. **Update prdPath in config.toml**:
+4. **Check config.toml paths**:
    ```bash
-   # Edit the [trackerOptions] section to point to your prd.json location
-   # Default: prdPath = "docs/prds/[name]/prd.json"
-   # Update [name] to match your actual PRD directory name
+   # Verify prompt_template path
+   grep "prompt_template" .ralph-tui/config.toml
+   # Must match: .ralph-tui/templates/prompt.hbs
+
+   # Verify the file exists
+   ls -la .ralph-tui/templates/prompt.hbs
+
+   # Check prdPath setting
+   grep "prdPath\|path" .ralph-tui/config.toml
    ```
 
 5. **Customize config.toml**:
    ```
    AskUserQuestion: "Ralph TUI preferences?"
-   ├── Model: Opus (highest quality) / Sonnet (balanced)
-   ├── Auto-commit: Yes / No
+   ├── Model: Opus (highest quality, recommended) / Sonnet (balanced)
+   ├── Auto-commit: Yes (recommended) / No
    └── Max iterations: 70 (default)
    ```
 
-6. **Verify setup**:
+6. **Verify template has required variables**:
+
+   Check the template includes these sections:
    ```bash
-   ralph-tui --help
+   # PRD context variables
+   grep -E "prdName|prdDescription|prdCompletedCount" .ralph-tui/templates/prompt.hbs
+
+   # Task variables
+   grep -E "taskId|taskTitle|taskDescription|acceptanceCriteria" .ralph-tui/templates/prompt.hbs
+
+   # Context variables
+   grep -E "recentProgress|codebasePatterns" .ralph-tui/templates/prompt.hbs
    ```
 
-### Template Verification
+7. **Run ralph-tui doctor** to validate:
+   ```bash
+   ralph-tui doctor
+   ```
 
-Before moving on, confirm:
-- [ ] `.ralph-tui/config.toml` exists
-- [ ] Template file exists at the path specified by `prompt_template`
-- [ ] If using custom template location, `prompt_template` is updated accordingly
-- [ ] `prdPath` in `[trackerOptions]` points to correct location
-- [ ] Template file is the working version (108 lines, simple format)
+### Template Variable Mapping
+
+Understanding how prd.json maps to prompt.hbs:
+
+| prd.json Field | Template Variable | Notes |
+|----------------|-------------------|-------|
+| `name` | `{{prdName}}` | Project identifier |
+| `description` | `{{prdDescription}}` | Project context |
+| `userStories[].id` | `{{taskId}}` | e.g., US-001 |
+| `userStories[].title` | `{{taskTitle}}` | Story title |
+| `userStories[].description` | `{{taskDescription}}` | **Tasks must be embedded here** |
+| `userStories[].acceptanceCriteria` | `{{acceptanceCriteria}}` | Array → auto-formatted checkboxes |
+| `userStories[].notes` | `{{notes}}` | File paths, warnings |
+| `userStories[].dependsOn` | `{{dependsOn}}` | Prerequisites |
+| From progress.md | `{{recentProgress}}` | Cross-iteration learnings |
+| From progress.md | `{{codebasePatterns}}` | Discovered patterns |
+
+**IMPORTANT:** Tasks are NOT a separate template variable. They must be embedded in the `description` field:
+
+```json
+{
+  "description": "What this story accomplishes.\n\n**Tasks:**\n1. First task\n2. Second task\n3. Third task"
+}
+```
+
+### Template Verification Checklist
+
+Before moving on, verify with `ralph-tui template show`:
+- [ ] Template loads from `.ralph-tui/templates/prompt.hbs` (not default)
+- [ ] Template has workflow section
+- [ ] Template has completion signals (COMPLETE, BLOCKED, SKIP, EJECT)
+- [ ] Template references CLAUDE.md for project context
+- [ ] Template references progress.md for iteration context
+
+### Additional Context for Model
+
+Consider adding to the template:
+- Path to PRD.md for big-picture context: `docs/prds/[name]/PRD.md`
+- Path to progress.md: `.ralph-tui/progress.md`
+- Path to iterations folder: `.ralph-tui/iterations/`
+
+This lets the model investigate context when confused.
 
 ### Completion Criteria
 - `.ralph-tui/` directory created with proper structure
 - Config customized with correct paths
-- Template path verified in config.toml
+- `ralph-tui template show` confirms correct template is loaded
+- `ralph-tui doctor` passes
 - Move to Phase 13
 
 ---
@@ -850,28 +938,79 @@ Verify setup and provide comprehensive summary.
 
 3. **Suggest next steps**:
    ```
-   Next Steps:
+   ═══════════════════════════════════════════════════════════════════════════
+   Next Steps
+   ═══════════════════════════════════════════════════════════════════════════
+
    1. Review CLAUDE.md and customize further
    2. Run /prd to plan your first feature
-   3. Set up git worktrees for parallel Ralph loops
-   4. Run /setup-claude audit later to check for improvements
-
-   Git Worktrees (for parallel Ralph loops):
-   # Create a worktree for a feature branch
-   git worktree add ../project-feature-name feature-branch
-
-   # Each worktree can run its own tmux session with Ralph
-   tmux new-session -s feature-name
-   cd ../project-feature-name && ralph-tui run
+   3. Run /ralph-preflight to verify everything is ready
+   4. Start your Ralph loop
 
    Quick Commands:
-   ├── /prd - Plan a new feature
-   ├── /agent-browser - Browser automation
-   └── /setup-claude audit - Re-analyze setup
+   ├── /prd                  - Create a PRD for a feature
+   ├── /ralph-preflight      - Pre-flight check before Ralph loop
+   ├── /agent-browser        - Browser automation
+   └── /setup-claude audit   - Re-analyze setup later
+
+   ═══════════════════════════════════════════════════════════════════════════
+   Ralph Loop Workflow
+   ═══════════════════════════════════════════════════════════════════════════
+
+   Option A: Simple Branch (single feature at a time)
+   ───────────────────────────────────────────────────────────────────────────
+   # 1. Create PRD
+   /prd
+
+   # 2. Run pre-flight check
+   /ralph-preflight
+
+   # 3. Create feature branch
+   git checkout -b feature/your-feature-name
+
+   # 4. Start tmux session and Ralph loop
+   tmux new-session -d -s ralph-feature "ralph-tui run --prd path/to/prd.json"
+   tmux attach-session -t ralph-feature
+   # Press 's' to start, then Ctrl+B D to detach
+
+   Option B: Git Worktree (parallel development)
+   ───────────────────────────────────────────────────────────────────────────
+   # 1. Create PRD
+   /prd
+
+   # 2. Create worktree (isolated directory with its own branch)
+   git worktree add ../myproject-feature feature/feature-name
+
+   # 3. Navigate to worktree
+   cd ../myproject-feature
+
+   # 4. Run pre-flight in worktree
+   /ralph-preflight
+
+   # 5. Start tmux session and Ralph loop
+   tmux new-session -d -s ralph-feature "ralph-tui run --prd path/to/prd.json"
+   tmux attach-session -t ralph-feature
+
+   Monitoring Your Ralph Loop:
+   ───────────────────────────────────────────────────────────────────────────
+   # Check tmux sessions
+   tmux list-sessions
+
+   # Reattach to a session
+   tmux attach-session -t ralph-feature
+
+   # Detach (keep running)
+   Ctrl+B, then D
+
+   # Check progress
+   cat .ralph-tui/progress.md
+
+   # View Ralph status
+   ralph-tui status
    ```
 
 ### Completion Criteria
 - User has clear summary
 - Validation passed (if run)
-- User knows next steps
+- User knows next steps and Ralph loop workflow
 - **Workflow complete**
