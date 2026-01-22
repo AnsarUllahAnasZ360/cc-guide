@@ -59,6 +59,14 @@ Bad: "How should authentication work?"
 
 Good: "For authentication, should we: (A) use existing auth, (B) implement OAuth, (C) API keys, or (D) something else?"
 
+**Pro tip:** Use lettered options (A, B, C, D) so users can respond quickly with "1A, 2C" style answers. This is especially effective for:
+- Project type/feature category selection
+- Technology choices
+- Scope decisions
+- Quality gates commands
+
+See `example-conversation.md` for a complete example of this format in action.
+
 ### Build on Answers
 Don't treat questions as independent. Follow threads.
 

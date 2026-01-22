@@ -46,7 +46,8 @@ prd/
 │   ├── _overview.md             # How interviews work
 │   ├── brain-dump.md            # Gathering initial information
 │   ├── clarifying-questions.md  # Formulating good questions
-│   └── confirmation.md          # Validating understanding
+│   ├── confirmation.md          # Validating understanding
+│   └── example-conversation.md  # Complete example from start to finish
 └── categories/                  # Task-type specific guidance
     ├── _overview.md             # Category selection
     ├── feature-development.md   # New features and enhancements

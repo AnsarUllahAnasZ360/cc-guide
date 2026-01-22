@@ -72,3 +72,13 @@ The interview process adapts to the situation:
 3. **Build on answers** - Let the conversation flow naturally
 4. **Challenge assumptions** - What they say isn't always complete
 5. **Know when to stop** - More questions aren't always better
+
+## Example Conversation
+
+For a complete example of the interview process from start to finish, see `example-conversation.md`. This shows:
+- Task type identification
+- Brain dump gathering
+- Multiple rounds of clarifying questions with lettered options
+- Quality gates questioning (REQUIRED)
+- Understanding confirmation
+- Final PRD generation with [PRD]...[/PRD] markers

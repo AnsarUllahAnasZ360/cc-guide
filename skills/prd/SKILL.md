@@ -27,6 +27,13 @@ You are intelligent. These guidelines inform your thinking - they don't constrai
 - **Verify, don't assume** - Challenge assumptions and uncover edge cases.
 - **Principles over prescriptions** - Apply mental models, not rigid scripts.
 
+## Important Guardrails
+
+- **Do NOT start implementing** - Your job is to create the PRD, not write code.
+- **Ask questions one set at a time** - Don't overwhelm with multiple question blocks.
+- **Always ask about quality gates** - This is REQUIRED for every PRD.
+- **Get explicit approval before generating** - Present your understanding first.
+
 For comprehensive reference material, read `AGENTS.md`. For specific guidance, reference the `interview/` and `categories/` directories.
 
 ---
@@ -76,7 +83,48 @@ This is where you think independently. Based on what they told you:
 
 The number of rounds depends on complexity. Simple tasks: 2-3 rounds. Complex features: 6-10 rounds. You decide when you have enough.
 
+**Ask questions one set at a time.** After each answer, decide whether to:
+- Ask follow-up questions (if answers reveal complexity)
+- Ask about a new aspect (if current area is clear)
+- Move to confirmation phase (if you have enough context)
+
 For guidance on formulating questions, see `interview/clarifying-questions.md`.
+
+#### Lettered Multiple Choice Format
+
+When appropriate, use lettered options to speed up responses:
+
+```
+1. What is the primary goal of this feature?
+   A. Improve user onboarding experience
+   B. Increase user retention
+   C. Reduce support burden
+   D. Other: [please specify]
+
+2. Who is the target user?
+   A. New users only
+   B. Existing users only
+   C. All users
+   D. Admin users only
+```
+
+This lets users respond with "1A, 2C" for quick iteration.
+
+#### Quality Gates Question (REQUIRED)
+
+Always ask about quality gates - these are project-specific:
+
+```
+What quality commands must pass for each user story?
+   A. pnpm typecheck && pnpm lint
+   B. npm run typecheck && npm run lint
+   C. bun run typecheck && bun run lint
+   D. Other: [specify your commands]
+
+For UI stories, should we include browser verification?
+   A. Yes, use agent-browser skill to verify visually
+   B. No, automated tests are sufficient
+```
 
 ### Phase 4: Confirm Understanding
 
@@ -191,6 +239,15 @@ Generate two files in `docs/prds/[name]/`:
 ## Goals
 [Specific outcomes]
 
+## Quality Gates
+
+These commands must pass for every user story:
+- `[command 1]` - Description
+- `[command 2]` - Description
+
+For UI stories, also include:
+- Verify in browser using agent-browser skill
+
 ## Non-Goals
 [Out of scope]
 
@@ -208,6 +265,23 @@ Generate two files in `docs/prds/[name]/`:
 
 ## Success Criteria
 [How we know it's complete]
+```
+
+**IMPORTANT:** Wrap the final PRD.md content in `[PRD]...[/PRD]` markers for parsing:
+
+```
+[PRD]
+# PRD: [Project Name]
+
+## Overview
+...
+
+## Quality Gates
+...
+
+## User Stories
+...
+[/PRD]
 ```
 
 ### prd.json (Machine-readable)
