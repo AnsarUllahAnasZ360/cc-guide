@@ -14,8 +14,9 @@ And you've thought: *"Why can't I do that?"*
 
 **This repository is for you.** The developer who feels one step behind. The founder with ideas but no time. The team where only one person "gets" AI.
 
-Three skills that make the complicated stuff simple:
+Four skills that make the complicated stuff simple:
 - **`/prd`** — Create PRDs through conversation, not writing
+- **`/ralph-preflight`** — Validate everything before starting a Ralph loop
 - **`/setup-claude`** — Configure your repo optimally without reading 100 docs
 - **`/agent-browser`** — Browser automation for verifying UI actually works
 
@@ -33,6 +34,7 @@ npx @ansarullahanas/cc-guide add-skill --all
 
 # Or add individually
 npx @ansarullahanas/cc-guide add-skill prd
+npx @ansarullahanas/cc-guide add-skill ralph-preflight
 npx @ansarullahanas/cc-guide add-skill setup-claude
 npx @ansarullahanas/cc-guide add-skill agent-browser
 ```
@@ -48,6 +50,7 @@ In Claude Code:
 
 ```
 /prd                    # Create a PRD for a new feature
+/ralph-preflight        # Validate config before starting Ralph loop
 /setup-claude init      # Set up a new repository
 /setup-claude audit     # Audit an existing repository
 /agent-browser          # Browser automation help
@@ -126,6 +129,19 @@ Creates self-verifying PRDs through an interview process:
 **The output is a PRD that Ralph TUI can execute autonomously.**
 
 You don't write PRDs. You answer questions.
+
+### Ralph Pre-Flight Skill (`/ralph-preflight`)
+
+Run this after `/prd` and before starting a Ralph loop:
+
+1. Detects global CLAUDE.md conflicts (can override local config)
+2. Checks for existing Ralph state from previous runs
+3. Validates config.toml and template paths
+4. Verifies prd.json structure and template variable mapping
+5. Offers branch vs worktree setup options
+6. Provides ready-to-copy tmux and Ralph launch commands
+
+**Catches configuration issues before they waste iterations.**
 
 ### Setup Claude Skill (`/setup-claude`)
 
@@ -207,6 +223,9 @@ cc-guide/
 │   │   ├── interview/        # Interview process guides
 │   │   └── categories/       # Task-type specific guidance
 │   │
+│   ├── ralph-preflight/      # Pre-flight check skill
+│   │   └── SKILL.md          # Validation & launch commands
+│   │
 │   ├── setup-claude/         # Setup/audit skill
 │   │   ├── SKILL.md          # Entry point
 │   │   ├── workflows/        # Init & audit workflows
@@ -241,15 +260,18 @@ cc-guide/
 2. PLAN (once per feature)
    /prd
 
-3. BUILD (autonomous)
+3. VALIDATE (before each loop)
+   /ralph-preflight
+
+4. BUILD (autonomous)
    tmux new-session -s feature
-   ralph-tui run
+   ralph-tui run --prd path/to/prd.json
    Ctrl+b, d
 
-4. MONITOR (periodic)
+5. MONITOR (periodic)
    tmux attach -t feature
 
-5. SHIP
+6. SHIP
    Review, merge, celebrate
 ```
 
