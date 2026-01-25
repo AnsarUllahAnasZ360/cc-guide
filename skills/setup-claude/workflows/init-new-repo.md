@@ -797,14 +797,14 @@ Ralph TUI requires several files to work correctly together:
 
    Check the template includes these sections:
    ```bash
-   # PRD context variables
-   grep -E "prdName|prdDescription|prdCompletedCount" .ralph-tui/templates/prompt.hbs
+   # PRD context variables (must include currentIteration)
+   grep -E "prdName|prdDescription|prdCompletedCount|currentIteration" .ralph-tui/templates/prompt.hbs
 
    # Task variables
    grep -E "taskId|taskTitle|taskDescription|acceptanceCriteria" .ralph-tui/templates/prompt.hbs
 
-   # Context variables
-   grep -E "recentProgress|codebasePatterns" .ralph-tui/templates/prompt.hbs
+   # Template should NOT have recentProgress (agent reads file directly)
+   grep "recentProgress" .ralph-tui/templates/prompt.hbs && echo "WARNING: Remove recentProgress - it's redundant"
    ```
 
 7. **Run ralph-tui doctor** to validate:
@@ -820,14 +820,21 @@ Understanding how prd.json maps to prompt.hbs:
 |----------------|-------------------|-------|
 | `name` | `{{prdName}}` | Project identifier |
 | `description` | `{{prdDescription}}` | Project context |
+| Calculated | `{{prdCompletedCount}}` | Completed story count |
+| Calculated | `{{prdTotalCount}}` | Total story count |
+| Calculated | `{{currentIteration}}` | Current iteration number (REQUIRED) |
 | `userStories[].id` | `{{taskId}}` | e.g., US-001 |
 | `userStories[].title` | `{{taskTitle}}` | Story title |
 | `userStories[].description` | `{{taskDescription}}` | **Tasks must be embedded here** |
 | `userStories[].acceptanceCriteria` | `{{acceptanceCriteria}}` | Array → auto-formatted checkboxes |
 | `userStories[].notes` | `{{notes}}` | File paths, warnings |
 | `userStories[].dependsOn` | `{{dependsOn}}` | Prerequisites |
-| From progress.md | `{{recentProgress}}` | Cross-iteration learnings |
-| From progress.md | `{{codebasePatterns}}` | Discovered patterns |
+| From progress.md | `{{codebasePatterns}}` | Discovered patterns (optional) |
+
+**DEPRECATED - Do NOT use:**
+| Variable | Reason |
+|----------|--------|
+| `{{recentProgress}}` | Agent reads `.ralph-tui/progress.md` directly as first action every iteration |
 
 **IMPORTANT:** Tasks are NOT a separate template variable. They must be embedded in the `description` field:
 
@@ -837,18 +844,35 @@ Understanding how prd.json maps to prompt.hbs:
 }
 ```
 
-### Template Verification Checklist
+### Template Verification Checklist (Optimized v2)
 
 Before moving on, verify with `ralph-tui template show`:
 - [ ] Template loads from `.ralph-tui/templates/prompt.hbs` (not default)
-- [ ] Template has workflow section
+- [ ] Template does NOT include `{{recentProgress}}` (agent reads file directly)
+- [ ] Template includes `{{currentIteration}}` in header
+- [ ] Template has "Context Files (Read These First)" section with explicit paths
+- [ ] Template has 3-phase workflow: Context Gathering → Implementation → Documentation
+- [ ] Template has gibberish cleanup instructions in Phase 3
+- [ ] Template has verbose progress entry format with 4 sections (What/Files/Learnings/Quality)
+- [ ] Template says "Be verbose and thorough - future iterations start with no memory"
 - [ ] Template has completion signals (COMPLETE, BLOCKED, SKIP, EJECT)
 - [ ] Template references CLAUDE.md for project context
 - [ ] Template references progress.md for iteration context
 
+### Template Anti-Pattern Detection
+
+Flag these issues if found:
+
+| Issue | Problem | Fix |
+|-------|---------|-----|
+| `{{recentProgress}}` in template | Redundant - agent reads file directly | Remove the section |
+| No `{{currentIteration}}` | Can't track which iteration in logs | Add to header |
+| No gibberish cleanup instruction | JSON fragments accumulate in progress.md | Add Phase 3 step |
+| Simple progress format | Future iterations lack context | Use verbose 4-section format |
+
 ### Additional Context for Model
 
-Consider adding to the template:
+The optimized v2 template includes explicit paths:
 - Path to PRD.md for big-picture context: `docs/prds/[name]/PRD.md`
 - Path to progress.md: `.ralph-tui/progress.md`
 - Path to iterations folder: `.ralph-tui/iterations/`

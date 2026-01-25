@@ -206,6 +206,26 @@ Every story in the PRD needs these elements:
 | Final Validation | Run full test suite, build, ensure passing |
 | Report | Document what was done, decisions, issues |
 
+### Ralph Loop Optimization
+
+When creating stories, keep in mind that Ralph loops operate with these constraints:
+
+**Each iteration starts with no memory** - The agent must read `.ralph-tui/progress.md` to understand prior work. This means:
+- Story notes should include file paths, function names, and specific locations
+- Reference existing patterns that the agent should follow
+- Include gotchas or edge cases discovered during planning
+
+**Progress entries must be verbose** - The template instructs agents to write detailed progress entries with:
+- What was implemented (specific function names, class names)
+- Files changed (with descriptions)
+- Learnings (patterns, gotchas, architecture insights)
+- Quality gate results
+
+**Include this context in story notes** when relevant:
+- Which files are likely to be modified
+- What existing patterns to follow
+- What the agent should document for future iterations
+
 ---
 
 ## Verification & Testing
@@ -333,6 +353,8 @@ This verifies:
 - Config and template paths are correct
 - prd.json structure is valid
 - Template variables will map correctly
+- Template uses optimized v2 format (no `{{recentProgress}}`, has gibberish cleanup)
+- Template has verbose progress entry format for cross-iteration context
 
 ### 3. Execution Setup
 

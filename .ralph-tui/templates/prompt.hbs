@@ -1,23 +1,17 @@
-{{!-- Ralph Loop Prompt Template - Compact & Information-Dense --}}
+# {{prdName}}
 
-{{#if prdName}}# {{prdName}}{{/if}}
-{{#if prdDescription}}> {{prdDescription}}{{/if}}
-{{#if prdCompletedCount}}**Progress:** {{prdCompletedCount}}/{{prdTotalCount}} stories{{/if}}
+> {{prdDescription}}
+
+**Progress:** {{prdCompletedCount}} of {{prdTotalCount}} stories complete | **Iteration:** {{currentIteration}}
 
 ---
+## Current Task: {{taskId}} - {{taskTitle}}
 
-## Task: {{taskId}} - {{taskTitle}}
-
-{{#if taskDescription}}
-### What & Why
+### Description
 {{taskDescription}}
-{{/if}}
 
-{{#if acceptanceCriteria}}
 ### Acceptance Criteria
-All must be true before COMPLETE:
 {{acceptanceCriteria}}
-{{/if}}
 
 {{#if notes}}
 ### Notes
@@ -25,98 +19,106 @@ All must be true before COMPLETE:
 {{/if}}
 
 {{#if dependsOn}}
-### Dependencies
-Requires: **{{dependsOn}}** - check `.ralph-tui/progress.md` for their outputs.
+### Prerequisites
+Requires: **{{dependsOn}}** - Review their implementation in progress.md before starting.
 {{/if}}
 
 ---
-
-{{#if recentProgress}}
-## Previous Iterations
-{{recentProgress}}
-{{/if}}
+## Context Files
+**Required:** Read `.ralph-tui/progress.md` first
+- Contains iteration history, learnings, and patterns from previous work
+- Study what was done, what files were changed, and any gotchas discovered
+**Reference (if needed):** `PRD.md` in the same directory as `prd.json`
+- Contains complete project goals, architecture, testing strategy, and all user stories
+- Refer to this if you need more context about the overall project, previous tasks, or upcoming work
 
 {{#if codebasePatterns}}
-### Patterns Discovered
+---
+## Codebase Patterns (Quick Reference)
 {{codebasePatterns}}
 {{/if}}
 
 ---
 
 ## Workflow
-
-1. **Context** - Read CLAUDE.md for project conventions and commands
-2. **Progress** - Check `.ralph-tui/progress.md` for patterns and decisions from earlier iterations
-3. **Execute** - Complete tasks in description, in order
-4. **Verify** - Run quality commands from CLAUDE.md, confirm all acceptance criteria pass
-5. **Commit** - Stage and commit with descriptive message
-6. **Document** - Add key learnings to `.ralph-tui/progress.md`
-7. **Signal** - Output completion signal
-
-### Principles
-- Read existing code before modifying
-- Minimal, focused changes only
-- Follow established patterns
-- Back claims with file:line evidence
-- Tests MUST pass before COMPLETE
+### Phase 1: Context Gathering
+1. Read `.ralph-tui/progress.md` completely - understand what iterations came before
+2. Check if this task's work already exists - if so, verify and signal COMPLETE
+3. If you need more context about the overall project or other tasks, refer to PRD.md
+### Phase 2: Implementation
+4. Implement this single story following acceptance criteria exactly
+5. Run quality checks as specified in CLAUDE.md
+6. Commit with message: `feat: {{taskId}} - {{taskTitle}}`
+### Phase 3: Documentation
+7. **Clean up progress.md** - Remove any malformed entries (JSON fragments, gibberish in Notes sections, duplicate iteration headers)
+8. **Append your progress entry** using the exact format below
+9. Signal completion
 
 ---
+## Progress Entry Format
+APPEND to `.ralph-tui/progress.md` using this **exact format** (be thorough and detailed):
+```markdown
+## ✓ Iteration {{currentIteration}} - {{taskId}}: {{taskTitle}}
 
+**What was implemented:**
+- [Detailed description of what was built, changed, or verified]
+- [Include specific function names, class names, file paths]
+- [Document any verification performed even if no code changes were needed]
+**Files changed:**
+- `path/to/file.ext` (new|modified - description of changes)
+- [List ALL files touched with meaningful descriptions]
+**Learnings:**
+- [Key patterns discovered that future iterations should know]
+- [Gotchas, edge cases, or unexpected behaviors encountered]
+- [Architecture insights, dependency relationships, or code flow understanding]
+- [What worked well and what to avoid]
+**Quality gate:**
+- [Full command output: PASSED/FAILED with test counts]
+- [Any warnings or pre-existing issues to be aware of]
+
+---
+```
+**Rules for progress entries:**
+- Be thorough - future iterations start with no memory
+- Document everything unique from your session
+- Include specific details: function names, line numbers, patterns
+- Explain WHY things work the way they do, not just WHAT
+- If you see malformed entries (JSON fragments, `"type":"message"`, gibberish), DELETE them
+
+---
+## Loop Context
+
+You are in **Iteration {{currentIteration}}** of a Ralph autonomous loop.
+
+Each iteration:
+- Starts fresh with no memory of previous runs
+- Must read `.ralph-tui/progress.md` for context from previous iterations
+- Must document work for future iterations to understand
+- Must signal completion to proceed to next task
+
+---
 ## Completion Signals
-
-**Done** - All criteria met, tests pass:
+**When all acceptance criteria are met:**
 ```
 <promise>COMPLETE</promise>
 ```
-
-**Need human input**:
+**When blocked and need human input:**
 ```
 <promise>BLOCKED</promise>
 Reason: [what you need]
 ```
-
-**Can't complete, non-critical**:
+**When non-critical task cannot be completed:**
 ```
 <promise>SKIP</promise>
-Reason: [why]
-Attempted: [what you tried]
+Reason: [why] | Attempted: [what you tried]
 ```
-
-**Critical failure**:
+**When critical failure requires human intervention:**
 ```
 <promise>EJECT</promise>
-Reason: [the issue]
-Impact: [what's blocked]
+Reason: [the issue] | Impact: [what's blocked]
 ```
-
----
-
-## Loop Awareness
-
-You're in an autonomous Ralph loop. Before working:
-1. Check if task work already exists
-2. If exists, verify against acceptance criteria
-3. If criteria met → signal COMPLETE immediately
-4. If not met → identify gap and complete only that
-
-**Never** signal COMPLETE with failing tests.
-
-### Context Sources
-
-| Location | Use When |
-|----------|----------|
-| `CLAUDE.md` | Commands, conventions, structure |
-| `.ralph-tui/progress.md` | Iteration learnings, patterns |
-| `.ralph-tui/iterations/` | Detailed logs from previous runs |
-
-### If Confused
-
-You don't need these every time - only investigate when stuck or need big picture:
-
-| Resource | Contains |
-|----------|----------|
-| PRD.md | Full requirements, scope, goals |
-| progress.md | What's been done, decisions made |
-| iterations/ | Complete output from each iteration |
-
-Trust the process. Each iteration should make measurable progress.
+**Rules:**
+- Verify ALL acceptance criteria before signaling COMPLETE
+- NEVER signal COMPLETE if tests fail
+- If work already exists and meets criteria → verify then COMPLETE immediately
+- Clean up any gibberish in progress.md before adding your entry

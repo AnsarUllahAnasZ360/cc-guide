@@ -214,6 +214,7 @@ Read the prompt.hbs and verify it uses these required variables:
 - `{{prdName}}` - Project name
 - `{{prdDescription}}` - Project overview
 - `{{prdCompletedCount}}` / `{{prdTotalCount}}` - Progress
+- `{{currentIteration}}` - Current iteration number (REQUIRED in header)
 
 **Task Variables:**
 - `{{taskId}}` - Story ID (e.g., US-001)
@@ -224,17 +225,53 @@ Read the prompt.hbs and verify it uses these required variables:
 - `{{dependsOn}}` - Prerequisites
 
 **Context Variables:**
-- `{{recentProgress}}` - From .ralph-tui/progress.md
-- `{{codebasePatterns}}` - Discovered patterns
+- `{{codebasePatterns}}` - Discovered patterns (optional)
 
-### 3.3 Template Quality Check
+**DEPRECATED (should NOT be in template):**
+- `{{recentProgress}}` - Agent reads `.ralph-tui/progress.md` directly as first action
 
-Verify template includes:
-- [ ] Workflow section (how to approach work)
+### 3.3 Template Quality Check (Optimized v2)
+
+Verify template includes all critical elements:
+
+**Structure Checks:**
+- [ ] Template does NOT include `{{recentProgress}}` (agent reads file directly - this is redundant)
+- [ ] Template includes `{{currentIteration}}` in header for tracking
+- [ ] Template has explicit "Context Files (Read These First)" section with:
+  - [ ] Path to `.ralph-tui/progress.md`
+  - [ ] Instruction to find `PRD.md` in same directory as `prd.json`
+
+**Workflow Checks:**
+- [ ] Template includes 3-phase workflow: Context Gathering → Implementation → Documentation
+- [ ] Phase 3 includes gibberish cleanup instructions (remove JSON fragments, malformed entries)
+- [ ] Template defines verbose progress entry format with sections:
+  - [ ] "What was implemented" (detailed descriptions)
+  - [ ] "Files changed" (paths with descriptions)
+  - [ ] "Learnings" (patterns, gotchas, architecture insights)
+  - [ ] "Quality gate" (command output, test results)
+
+**Rules Checks:**
+- [ ] Template says "Be verbose and thorough - future iterations start with no memory"
+- [ ] Template instructs to delete malformed entries (JSON fragments, `"type":"message"`, gibberish)
 - [ ] Completion signals (COMPLETE, BLOCKED, SKIP, EJECT)
-- [ ] Loop awareness (situational context)
-- [ ] Reference to CLAUDE.md for project context
+- [ ] Loop awareness (starts fresh each iteration, must read progress.md)
+
+**Context References:**
+- [ ] Reference to CLAUDE.md for project commands/conventions
 - [ ] Reference to progress.md for iteration context
+- [ ] Reference to PRD.md for full project goals
+
+### 3.4 Template Anti-Pattern Detection
+
+Flag these issues if found:
+
+| Issue | Problem | Fix |
+|-------|---------|-----|
+| `{{recentProgress}}` in template | Redundant - agent reads file directly | Remove the section |
+| No `{{currentIteration}}` | Can't track which iteration in logs | Add to header |
+| No gibberish cleanup instruction | JSON fragments accumulate in progress.md | Add Phase 3 step 7 |
+| Simple progress format | Future iterations lack context | Use verbose 4-section format |
+| No "start with no memory" warning | Agent may not document thoroughly | Add to rules section |
 
 ---
 
@@ -500,14 +537,19 @@ tmux attach-session -t ralph-[prd-name]
 | `{{prdDescription}}` | prd.json `description` | Project context |
 | `{{prdCompletedCount}}` | Calculated | Completed stories |
 | `{{prdTotalCount}}` | Calculated | Total stories |
+| `{{currentIteration}}` | Calculated | Current iteration number |
 | `{{taskId}}` | `userStories[].id` | Current story ID |
 | `{{taskTitle}}` | `userStories[].title` | Current story title |
 | `{{taskDescription}}` | `userStories[].description` | Story description (includes tasks) |
 | `{{acceptanceCriteria}}` | `userStories[].acceptanceCriteria` | Auto-formatted checkboxes |
 | `{{notes}}` | `userStories[].notes` | Additional context |
 | `{{dependsOn}}` | `userStories[].dependsOn` | Prerequisites |
-| `{{recentProgress}}` | `.ralph-tui/progress.md` | Cross-iteration learnings |
 | `{{codebasePatterns}}` | `.ralph-tui/progress.md` | Discovered patterns |
+
+**DEPRECATED - Do NOT use:**
+| Variable | Reason |
+|----------|--------|
+| `{{recentProgress}}` | Redundant - agent reads `.ralph-tui/progress.md` directly as first action every iteration |
 
 ### Common Issues
 
@@ -521,6 +563,11 @@ tmux attach-session -t ralph-[prd-name]
 | acceptanceCriteria empty | Ensure it's an array of strings |
 | Progress corrupted | Check `.ralph-tui.lock`, use `ralph-tui resume` |
 | Model confused by old progress | Clean progress.md before starting new PRD |
+| Gibberish/JSON in progress.md | Template should include cleanup instructions in Phase 3 |
+| Duplicate progress entries | Ralph auto-appends + agent appends; use cleanup instructions |
+| Template uses `{{recentProgress}}` | Remove it - agent reads file directly (redundant) |
+| Missing `{{currentIteration}}` | Add to header for iteration tracking |
+| Sparse progress notes | Use verbose 4-section format; add "no memory" warning |
 
 ### Ralph TUI Commands
 
