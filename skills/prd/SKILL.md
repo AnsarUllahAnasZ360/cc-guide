@@ -112,16 +112,33 @@ This lets users respond with "1A, 2C" for quick iteration.
 
 #### Quality Gates Question (REQUIRED)
 
-Always ask about quality gates - these are project-specific:
+Always ask about quality gates - these follow a **two-tiered testing approach**:
+
+**Tier 1: Story-Level Testing** (every story must do this)
+- Write ALL tests for the feature being implemented (no tests left out)
+- Run lint, typecheck, build verification
+- Run ALL tests related to that story: unit tests, integration tests for the code touched, E2E tests if the story has UI
+- All tests must be written AND pass before the story is complete
+
+**Tier 2: Dedicated Testing Sessions** (end of phase or PRD)
+- Run the complete test suite to ensure nothing broke
+- Verify all E2E tests pass
+- For features with UI: comprehensive browser verification
 
 ```
-What quality commands must pass for each user story?
-   A. pnpm typecheck && pnpm lint
-   B. npm run typecheck && npm run lint
-   C. bun run typecheck && bun run lint
+1. What quality commands should run for story-level testing?
+   A. pnpm typecheck && pnpm lint && pnpm test --related
+   B. npm run typecheck && npm run lint && npm test -- --findRelatedTests
+   C. bun run typecheck && bun run lint && bun test --related
    D. Other: [specify your commands]
 
-For UI stories, should we include browser verification?
+2. Does this project have E2E tests?
+   A. Yes - Playwright
+   B. Yes - Cypress
+   C. Yes - Other framework
+   D. No E2E tests yet (we should add them)
+
+3. For UI stories, should we include browser verification?
    A. Yes, use agent-browser skill to verify visually
    B. No, automated tests are sufficient
 ```
@@ -230,15 +247,38 @@ When creating stories, keep in mind that Ralph loops operate with these constrai
 
 ## Verification & Testing
 
-Calibrate verification intensity based on risk:
+Use the **two-tiered testing approach** for all PRDs:
 
-| Level | When | What |
-|-------|------|------|
-| Minimal | Research, docs | Accuracy check |
-| Light | Simple changes | Typecheck + lint |
-| Standard | Most work | Typecheck + lint + related tests |
-| Heavy | Complex, risky | Add integration tests |
-| Full | Checkpoints, final | Complete test suite + build |
+### Tier 1: Story-Level Testing (REQUIRED for every story)
+
+Every story must:
+1. **Write tests first** - All tests related to the feature being implemented
+2. **Run story-specific tests** - No test is left out from the implementation:
+   - Lint and typecheck
+   - Unit tests for new code
+   - Integration tests for touched code paths
+   - E2E tests if the story has UI components
+3. **All tests must pass** - Story is not complete until tests are written AND passing
+
+| What to Run | When |
+|-------------|------|
+| Lint + Typecheck | Every story |
+| Unit tests for new code | Every story with new functions/components |
+| Integration tests for touched code | Every story that modifies existing behavior |
+| E2E tests for the feature | Every story with UI or user-facing changes |
+| Build verification | Every story |
+
+### Tier 2: Dedicated Testing Sessions (End of phase/PRD)
+
+Include dedicated testing stories at:
+- End of each implementation phase
+- Final validation before PRD completion
+
+These sessions:
+- Run the **complete test suite** (not just related tests)
+- Ensure **all E2E tests pass** (full coverage, not just new ones)
+- Fix any regressions discovered
+- For features: verify E2E tests exist and pass for all user flows
 
 **UI work always gets browser verification** - if there's a visual component, verify it with Agent Browser CLI.
 
@@ -261,12 +301,20 @@ Generate two files in `docs/prds/[name]/`:
 
 ## Quality Gates
 
-These commands must pass for every user story:
-- `[command 1]` - Description
-- `[command 2]` - Description
+### Story-Level Testing (every story)
+- `[lint command]` - Lint check
+- `[typecheck command]` - Type verification
+- `[test command --related]` - Run tests related to changed files
+- `[build command]` - Build verification
 
-For UI stories, also include:
+For stories with UI:
+- Run E2E tests for the specific feature
 - Verify in browser using agent-browser skill
+
+### Dedicated Testing Sessions (end of phase)
+- `[full test command]` - Complete test suite
+- `[e2e test command]` - All E2E tests
+- Fix any regressions before proceeding
 
 ## Non-Goals
 [Out of scope]
