@@ -1,0 +1,455 @@
+---
+description: AgentX Sprint Protocol — Verification rules for Cursor Agent
+globs:
+  - sprints/**
+alwaysApply: false
+---
+
+# Sprint Verification Rules (Cursor Agent)
+
+You are verifying a sprint implemented by the AgentX Sprint Protocol.
+Your job is thorough, evidence-backed verification of every story and acceptance criterion.
+Do not rush. Do not skip items. Every checklist item gets verified with evidence.
+
+---
+
+## 1. Context Loading (CRITICAL — Do This FIRST)
+
+Before verifying ANYTHING, you must build a complete mental model of the sprint.
+Read every artifact thoroughly. Do not skim. Understand the full journey.
+
+### Required Reading (in this order)
+
+1. **`sprints/<name>/README.md`** — sprint goal, stories, scope, dependencies, architecture decisions
+2. **ALL story files in `sprints/<name>/stories/`** — read every single `STORY-*.md` file
+   - Understand each story's acceptance criteria, implementation notes, and edge cases
+   - Note which stories interact with or depend on each other
+3. **`sprints/<name>/progress.md`** — read the ENTIRE file, every single entry
+   - Understand the implementation journey: what was attempted, what changed, what surprised the workers
+   - Note any gotchas, workarounds, or known fragile areas
+   - Pay attention to entries where workers pivoted or encountered unexpected issues
+4. **`sprints/<name>/sprint-completion.md`** — final execution status
+   - What was completed vs. what was left incomplete
+   - Any outstanding issues flagged by the execution phase
+   - Worker notes about areas that need extra attention
+5. **`sprints/<name>/verification-checklist.md`** — your verification checklist
+   - This is your primary working document during verification
+   - Every item here MUST be verified — no exceptions
+6. **`CLAUDE.md`** (project root) — project conventions, tech stack, commands
+
+### Mental Model Checkpoint
+
+After reading all artifacts, you should be able to answer:
+- What is this sprint trying to achieve?
+- What stories were implemented and how do they connect?
+- What went wrong or was tricky during implementation?
+- What areas are most likely to have bugs?
+- What does "done" look like for each story?
+
+If you cannot answer these questions, go back and re-read the artifacts.
+
+---
+
+## 2. Verification Workflow
+
+Follow these steps in order. Do NOT skip steps or reorder them.
+
+### Step 1: Environment Setup
+
+Ensure the development environment is fully operational before testing anything.
+
+```bash
+# Install dependencies (if needed)
+npm install   # or pnpm install, yarn install, bun install
+
+# Start the dev server
+npm run dev   # or project-specific command
+
+# Verify database is seeded (if applicable)
+# Check that seed data exists and services are running
+```
+
+- Confirm the app starts without errors
+- Confirm all required services are running (database, API, etc.)
+- If the app fails to start, fix the startup issue before proceeding
+
+### Step 2: Load Sprint Branch
+
+```bash
+git checkout sprint/<name>
+git log --oneline -20   # Review recent commits to understand what was done
+```
+
+- Verify you are on the correct sprint branch
+- Review the commit history to understand the scope of changes
+
+### Step 3: Read All Context
+
+Complete the full Context Loading process described in Section 1 above.
+Do NOT proceed until you have read every file listed.
+
+### Step 4: Run Global Checks
+
+Run the project's full suite of automated checks and record every result.
+
+```bash
+# Adapt these commands to the project
+tsc --noEmit          # TypeScript typecheck
+npm run lint          # Linting
+npm test              # Test suite
+npm run build         # Production build
+```
+
+Record the results:
+- **TypeScript:** PASS / FAIL (N errors)
+- **Lint:** PASS / FAIL (N warnings, N errors)
+- **Tests:** PASS / FAIL (N passed, N failed, N skipped)
+- **Build:** PASS / FAIL
+
+If there are catastrophic failures (50+ errors), STOP and assess whether the sprint branch is in a workable state. Minor failures (under 10) will be fixed as you go.
+
+### Step 5: Start Video Recording
+
+Begin capturing evidence for every verification step. See the Video Evidence Protocol (Section 3) for details.
+
+- Start a screen recording or prepare to capture GIFs for each verification item
+- Every verification action should be recorded — do not verify without evidence
+
+### Step 6: Walk Verification Checklist
+
+This is the core of verification. For EVERY item in `verification-checklist.md`:
+
+1. **Navigate to the relevant page/route** in the browser
+2. **Verify the expected behavior works** — interact with the feature as a user would
+3. **Check the browser console** — look for errors, warnings, or unexpected logs
+4. **Check the network tab** — look for failed requests (4xx, 5xx), slow responses, or missing API calls
+5. **Record video/GIF evidence** — capture the verification step on screen
+6. **If PASS:** Note the result, attach evidence reference, move to next item
+7. **If FAIL:** Stop, fix immediately (see Step 7), re-verify, record evidence of the fix
+
+**For non-browser items** (API routes, server logic, database queries):
+- Write or run test commands that exercise the functionality
+- Capture terminal output as evidence
+- Verify edge cases mentioned in the story's acceptance criteria
+
+**Checklist tracking format:**
+```
+- [x] ITEM-001: Description — PASS (evidence: evidence/item-001.gif)
+- [x] ITEM-002: Description — PASS (evidence: evidence/item-002.gif)
+- [ ] ITEM-003: Description — FAIL → fixed → PASS (evidence: evidence/item-003-fix.gif)
+```
+
+### Step 7: Fix Issues As They Arise
+
+When you encounter a failure during Step 6, fix it IMMEDIATELY. Do not continue and batch fixes at the end.
+
+**Fix workflow:**
+1. Identify the root cause — understand WHY it is broken, not just WHAT is broken
+2. Apply the minimal fix needed
+3. Run typecheck and tests to confirm the fix does not break anything else
+4. Return to the checklist item and re-verify it
+5. Record evidence of the working fix
+6. Continue to the next checklist item
+
+**Fix classification:**
+| Severity | Definition | Action |
+|----------|-----------|--------|
+| Minor | Typos, missing imports, CSS glitches | Fix directly, re-verify |
+| Medium | Logic errors, missing handlers, broken state | Investigate root cause, fix, add test if needed, re-verify |
+| Major | Architecture issues, missing features, cross-cutting concerns | Document in verification report. Do NOT attempt to fix — it is out of scope |
+
+### Step 8: Integration Testing
+
+After verifying individual items, test cross-story interactions:
+
+- Features that share state or data — do they work together?
+- Navigation flows that cross story boundaries — are transitions smooth?
+- Data created by one story — is it correctly consumed by another?
+- Shared components modified by multiple stories — no regressions?
+
+Record evidence for each integration test.
+
+### Step 9: Final Global Checks
+
+After all fixes are applied, re-run the full global check suite:
+
+```bash
+tsc --noEmit
+npm run lint
+npm test
+npm run build
+```
+
+All four must pass. If any fail:
+- Fix the failing checks
+- Re-run until all pass
+- Maximum 3 fix rounds — if checks still fail after 3 rounds, document the remaining failures and recommend NEEDS WORK
+
+### Step 10: Compile Evidence
+
+Organize all recordings and screenshots:
+- Ensure every checklist item has a corresponding evidence file
+- Verify evidence files are named consistently and referenced correctly
+- Move all evidence into the organized evidence directory (see Video Evidence Protocol)
+
+### Step 11: Write Verification Report
+
+Create `sprints/<name>/verification-report.md` with:
+
+```markdown
+# Verification Report: Sprint <name>
+
+## Global Check Results
+- TypeScript: PASS/FAIL
+- Lint: PASS/FAIL
+- Tests: PASS/FAIL (N passed, N failed)
+- Build: PASS/FAIL
+
+## Story Verification
+### STORY-001: [Title]
+**Status:** PASS / FAIL
+**Acceptance Criteria:**
+- [Criterion 1]: PASS — evidence: ![](evidence/story-001-criterion-1.gif)
+- [Criterion 2]: PASS — evidence: ![](evidence/story-001-criterion-2.gif)
+
+### STORY-002: [Title]
+...
+
+## Integration Testing Results
+- [Test 1]: PASS/FAIL — evidence: ![](evidence/integration-001.gif)
+
+## Fixes Applied
+| # | File | Description | Severity |
+|---|------|-------------|----------|
+| 1 | `src/foo.ts:42` | Fixed null check | Medium |
+| 2 | `src/bar.tsx:17` | Added missing import | Minor |
+
+## Outstanding Issues
+| # | Description | Severity | Reason Not Fixed |
+|---|-------------|----------|-----------------|
+| 1 | [description] | Major | Architecture change needed |
+
+## Recommendation
+**MERGE** / **NEEDS WORK**
+[Justification]
+```
+
+Every checklist item MUST appear in this report — either as PASS or FAIL with explanation.
+
+### Step 12: Create PR
+
+Commit all fixes and the verification report, then create the PR:
+
+```bash
+git add -A
+git commit -m "[VERIFY] Sprint <name> — verification fixes"
+
+gh pr create \
+  --base main \
+  --head sprint/<name> \
+  --title "Sprint: <name>" \
+  --body "$(cat <<'EOF'
+## Sprint: <name>
+### Goal
+[From README.md]
+
+### Stories
+| # | Title | Status |
+|---|-------|--------|
+| STORY-001 | ... | verified |
+
+### Verification Report
+[Key sections from verification-report.md]
+
+### Test Results
+- TypeScript: PASS/FAIL
+- Lint: PASS/FAIL
+- Tests: PASS/FAIL
+- Build: PASS/FAIL
+
+### Outstanding Issues
+[From verification-report.md]
+
+### Recommendation
+MERGE / NEEDS WORK
+EOF
+)"
+```
+
+---
+
+## 3. Video Evidence Protocol
+
+Evidence is mandatory. Verification without evidence is incomplete verification.
+
+### What to Record
+
+- **Every verification step** — navigating to the feature, interacting with it, confirming it works
+- **Every fix applied** — the broken state, the fix being applied, the re-verification showing it works
+- **Every re-verification** — after a fix, show the item now passes
+- **Integration tests** — cross-story flows working end-to-end
+- **Console and network checks** — no errors, no failed requests
+
+### How to Create Recordings
+
+Use the browser's built-in recording tools or Cursor's screenshot/recording capabilities:
+- **GIFs** for short interactions (under 15 seconds) — use a GIF capture tool
+- **Screenshots** for static verification (correct text, correct layout, correct data)
+- **Screen recordings** for complex flows (multi-step interactions, form submissions, navigation flows)
+
+### Where to Save
+
+All evidence goes in an organized directory:
+
+```
+sprints/<name>/evidence/
+  ├── story-001-criterion-1.gif
+  ├── story-001-criterion-2.gif
+  ├── story-002-criterion-1.png
+  ├── integration-001.gif
+  ├── global-checks.png
+  └── ...
+```
+
+Naming convention: `<story-id>-<criterion-or-description>.<ext>`
+
+### How to Reference in the Verification Report
+
+Use relative markdown image links:
+
+```markdown
+![Story 001 - Login form works](evidence/story-001-login.gif)
+![Story 002 - Dashboard loads](evidence/story-002-dashboard.png)
+```
+
+For terminal output evidence (test results, build output):
+- Capture a screenshot of the terminal
+- Or paste the output in a code block with a note about when it was captured
+
+---
+
+## 4. Fix Rules
+
+### Core Principles
+
+- **Fix as you go** — when a checklist item fails, fix it immediately. Do NOT accumulate a list of fixes to apply at the end. Fixing immediately gives you the context you need and prevents cascading issues.
+- **Understand before fixing** — do not apply blind fixes. Read the relevant story, understand the intended behavior, trace the code path, then fix with confidence.
+- **Minimal fixes only** — fix the bug, nothing more. Do not refactor surrounding code, add comments, improve naming, or "clean up while you're in there."
+- **Re-verify after every fix** — a fix that is not re-verified is not a fix. Run the checklist item again and record evidence.
+
+### What You Must NOT Do
+
+- Do NOT use `// @ts-ignore` or `// @ts-expect-error` to silence type errors
+- Do NOT use `test.skip()` or `.skip` to bypass failing tests
+- Do NOT `eslint-disable` rules to silence lint errors
+- Do NOT change code style, add comments, or reorganize imports
+- Do NOT add features that were not in the stories
+- Do NOT refactor any code — verification is not a refactoring pass
+
+### Handling Unrelated Failures
+
+If you find a failure that is NOT related to the sprint's changes:
+1. Verify it truly pre-exists — check if it fails on main branch too
+2. If it pre-exists: document it in the verification report under "Pre-existing Issues" but do NOT fix it
+3. If it was introduced by the sprint: fix it — it is in scope
+
+### Out-of-Scope Issues
+
+If a fix requires changes that go beyond the sprint's scope:
+- Do NOT attempt the fix
+- Document it thoroughly in the verification report
+- Include: what is broken, why, what would be needed to fix it, and which story it relates to
+- This becomes a follow-up item, not a verification fix
+
+---
+
+## 5. Thoroughness Requirements
+
+Verification is not done until every single item is accounted for.
+
+### Completeness Rules
+
+1. **Every checklist item must be verified** — no skipping, no "probably fine," no assumptions
+2. **Every verification must have evidence** — screenshot, GIF, recording, or terminal output
+3. **Every fix must be re-verified** — with fresh evidence showing it now passes
+4. **Every checklist item must appear in the verification report** — either as PASS with evidence or FAIL with explanation
+5. **Do not stop early** — even if the first 10 items pass, continue until EVERY item is done
+
+### Verification Report Completeness Check
+
+Before submitting the verification report, confirm:
+- [ ] Every item from verification-checklist.md appears in the report
+- [ ] Every PASS has evidence attached or referenced
+- [ ] Every FAIL has a clear explanation and either a fix reference or a justification for why it was not fixed
+- [ ] Global checks (typecheck, lint, tests, build) all pass or failures are documented
+- [ ] Integration tests are documented with results
+- [ ] Recommendation (MERGE / NEEDS WORK) is stated with justification
+- [ ] All evidence files exist and are correctly referenced
+
+### When to Recommend NEEDS WORK
+
+- Any critical issue remains unfixed after 3 fix rounds
+- Tests fail and cannot be fixed within verification scope
+- A story's core acceptance criteria cannot be verified as passing
+- Build fails and the failure is related to sprint changes
+- Multiple medium-severity issues remain unresolved
+
+### When to Recommend MERGE
+
+- All checklist items pass (with evidence)
+- All global checks pass
+- No critical or medium issues remain
+- Any minor outstanding items are documented for follow-up
+
+---
+
+## 6. Commit Format
+
+```
+[VERIFY] Sprint <name> — verification fixes
+```
+
+One commit for ALL verification fixes. Not one per fix.
+
+---
+
+## 7. PR Format
+
+```
+Title: Sprint: <name>
+
+Body:
+## Sprint: <name>
+### Goal
+[From README.md]
+
+### Stories
+[Table from verification results]
+
+### Verification Report
+[Key sections from verification-report.md]
+
+### Test Results
+[Pass/fail for typecheck, lint, tests, build]
+
+### Outstanding Issues
+[From verification-report.md]
+
+### Recommendation
+MERGE / NEEDS WORK
+```
+
+---
+
+## 8. Do NOT
+
+- Refactor any code
+- Change code that is not broken
+- Add new features
+- Skip context loading
+- Create multiple fix commits
+- Force-push or rewrite history
+- Use `@ts-ignore`, `test.skip()`, or `eslint-disable` as fixes
+- Stop verification early — every item must be checked
+- Verify without evidence — if there is no recording, it was not verified
+- Batch fixes at the end — fix immediately when found
