@@ -1,0 +1,46 @@
+{
+  "name": "proof-driven-verification",
+  "version": "0.1.0",
+  "description": "ProofOps verification team for branches and PRs with code review, human-style browser QA, fix loops, and narrated proof videos.",
+  "author": {
+    "name": "Ansar Ullah",
+    "email": "ansar@z360.biz",
+    "url": "https://z360.biz"
+  },
+  "homepage": "https://openai.com/index/codex-for-almost-everything/",
+  "repository": "local",
+  "license": "UNLICENSED",
+  "keywords": [
+    "verification",
+    "code-review",
+    "browser-testing",
+    "remotion",
+    "deepgram"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "ProofOps Verification",
+    "shortDescription": "Review, verify, fix, and produce browser proof artifacts.",
+    "longDescription": "A reusable verification team for branches, PRs, and completed coding tasks. It combines definition-of-done gating, Code Review agents, Browser QA agents powered by Agent Browser and dogfood guidance, Developer Fixer agents, optional Next.js diagnostics, Computer Use fallback guidance, iterative fixes, artifact validation, and Proof Producer generation of Remotion plus Deepgram narrated videos.",
+    "developerName": "Ansar Ullah",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write",
+      "Browser automation",
+      "Video generation",
+      "Code review",
+      "Subagent orchestration"
+    ],
+    "websiteURL": "https://openai.com/codex",
+    "privacyPolicyURL": "https://openai.com/policies/privacy-policy/",
+    "termsOfServiceURL": "https://openai.com/policies/terms-of-use/",
+    "defaultPrompt": [
+      "Use ProofOps with subagents to verify this branch.",
+      "ProofOps verify this PR and produce browser evidence.",
+      "Create browser proof and a narrated verification video."
+    ],
+    "brandColor": "#1F7A72"
+  }
+}

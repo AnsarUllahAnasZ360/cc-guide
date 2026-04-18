@@ -19,6 +19,7 @@ Four skills that make the complicated stuff simple:
 - **`/ralph-preflight`** — Validate everything before starting a Ralph loop
 - **`/setup-claude`** — Configure your repo optimally without reading 100 docs
 - **`/agent-browser`** — Browser automation for verifying UI actually works
+- **ProofOps Verification** — Review branches, fix issues, capture browser proof, and render proof videos
 
 Plus guides on how to actually use Claude Code productively.
 
@@ -37,6 +38,36 @@ npx @ansarullahanas/cc-guide add-skill prd
 npx @ansarullahanas/cc-guide add-skill ralph-preflight
 npx @ansarullahanas/cc-guide add-skill setup-claude
 npx @ansarullahanas/cc-guide add-skill agent-browser
+```
+
+### Add ProofOps Verification Plugin
+
+```bash
+npx @ansarullahanas/cc-guide add-plugin proof-driven-verification
+```
+
+Optional one-command install plus prerequisite setup:
+
+```bash
+npx @ansarullahanas/cc-guide add-plugin proof-driven-verification --setup
+```
+
+Run ProofOps in one command from any repo:
+
+```bash
+npx @ansarullahanas/cc-guide proofops --task "Verify this branch before I merge it"
+```
+
+Run the doctor in any repo:
+
+```bash
+node plugins/proof-driven-verification/scripts/doctor.mjs
+```
+
+Store Deepgram securely on macOS without committing it:
+
+```bash
+DEEPGRAM_API_KEY=... node plugins/proof-driven-verification/scripts/deepgram-key.mjs set
 ```
 
 **Via skills.sh:**
@@ -236,6 +267,9 @@ cc-guide/
 │   └── agent-browser/        # Browser automation skill
 │       └── SKILL.md          # CLI reference
 │
+├── plugins/
+│   └── proof-driven-verification/ # ProofOps verification plugin
+│
 ├── guides/
 │   ├── what-is-milhouse.md        # Philosophy and purpose
 │   ├── my-claude-workflow.md      # Daily workflow
@@ -246,7 +280,7 @@ cc-guide/
 │   └── prompt.hbs            # Ralph TUI prompt template
 │
 └── bin/
-    └── add-skill.js          # npx cc-guide add-skill
+    └── add-skill.js          # npx cc-guide add-skill / add-plugin
 ```
 
 ---

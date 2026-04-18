@@ -1,0 +1,162 @@
+* {
+  box-sizing: border-box;
+}
+
+.root {
+  background: linear-gradient(135deg, #f7faf7 0%, #e4eee8 48%, #f8f1df 100%);
+  color: #18201f;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(24, 32, 31, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 32, 31, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.52;
+}
+
+header {
+  position: absolute;
+  top: 30px;
+  left: 54px;
+  right: 54px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  z-index: 5;
+}
+
+header span {
+  margin-left: auto;
+  color: #1f7a72;
+  font-weight: 800;
+}
+
+.logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #18201f;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+}
+
+.scene {
+  padding: 96px 54px 58px;
+  display: grid;
+  grid-template-columns: 1fr 590px;
+  gap: 40px;
+}
+
+.copy {
+  align-self: center;
+}
+
+.kicker {
+  color: #1f7a72;
+  font-size: 20px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+h1 {
+  font-size: 58px;
+  line-height: 1.02;
+  margin: 0;
+  max-width: 600px;
+}
+
+p {
+  font-size: 25px;
+  line-height: 1.34;
+  color: rgba(24, 32, 31, 0.74);
+  margin-top: 22px;
+  max-width: 600px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.chips span {
+  border: 1px solid rgba(24, 32, 31, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.75);
+  padding: 10px 12px;
+  color: #1f7a72;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.browser-frame {
+  align-self: center;
+  justify-self: end;
+  width: 560px;
+  height: 378px;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid rgba(24, 32, 31, 0.15);
+  box-shadow: 0 24px 60px rgba(24, 32, 31, 0.18);
+  overflow: hidden;
+}
+
+.browser-chrome {
+  height: 35px;
+  background: #18201f;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 14px;
+}
+
+.browser-chrome span {
+  width: 9px;
+  height: 9px;
+  border-radius: 9px;
+}
+
+.browser-body {
+  width: 100%;
+  height: 343px;
+  background: #e7ece8;
+}
+
+.asset-empty {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: rgba(24, 32, 31, 0.55);
+  font-weight: 800;
+}
+
+.progress {
+  position: absolute;
+  left: 54px;
+  right: 54px;
+  bottom: 34px;
+  height: 4px;
+  background: rgba(24, 32, 31, 0.12);
+}
+
+.progress div {
+  height: 100%;
+  background: #1f7a72;
+}
