@@ -48,6 +48,13 @@ npx @ansarullahanas/cc-guide add-plugin proof-driven-verification
 npx @ansarullahanas/cc-guide add-plugin sprint-protocol
 ```
 
+If the npm package version lags behind `main`, install directly from GitHub instead:
+
+```bash
+npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin proof-driven-verification
+npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin sprint-protocol
+```
+
 ### Install A Plugin Globally For Codex
 
 Install once into your home Codex plugin catalog so it is available from any project on that computer:
@@ -55,6 +62,13 @@ Install once into your home Codex plugin catalog so it is available from any pro
 ```bash
 npx @ansarullahanas/cc-guide add-plugin proof-driven-verification --global
 npx @ansarullahanas/cc-guide add-plugin sprint-protocol --global
+```
+
+GitHub fallback for global install:
+
+```bash
+npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin proof-driven-verification --global
+npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin sprint-protocol --global
 ```
 
 This writes plugins into `~/plugins/<plugin-name>` and updates `~/.agents/plugins/marketplace.json`.
