@@ -1,0 +1,7 @@
+interface:
+  display_name: "Sprint Protocol"
+  short_description: "Run Codex sprints from plan to PR"
+  brand_color: "#1F7A72"
+  default_prompt: "Use $sprint-protocol to plan, execute, and verify this sprint."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Sprint Research"
+  short_description: "Research and plan a sprint"
+  brand_color: "#1F7A72"
+  default_prompt: "Use $sprint-research to research and plan this feature."
+policy:
+  allow_implicit_invocation: true

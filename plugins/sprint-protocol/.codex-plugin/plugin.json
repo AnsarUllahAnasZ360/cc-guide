@@ -1,0 +1,45 @@
+{
+  "name": "sprint-protocol",
+  "version": "0.1.0",
+  "description": "Codex-native sprint protocol for research, story writing, review, implementation, verification, and PR handoff.",
+  "author": {
+    "name": "Ansar Ullah",
+    "email": "ansar@z360.biz",
+    "url": "https://z360.biz"
+  },
+  "homepage": "https://github.com/AnsarUllahAnasZ360/cc-guide",
+  "repository": "https://github.com/AnsarUllahAnasZ360/cc-guide",
+  "license": "MIT",
+  "keywords": [
+    "sprint",
+    "planning",
+    "multi-agent",
+    "codex",
+    "verification"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Sprint Protocol",
+    "shortDescription": "Run reliable Codex sprints from research to PR.",
+    "longDescription": "A Codex-optimized sprint operating system. It turns large product or engineering goals into durable sprint artifacts, uses Codex subagents for research, story writing, implementation, review, and verification, keeps long-running work resumable through files and plans, and can hand verification to dedicated ProofOps or GitHub/Vercel skills when available.",
+    "developerName": "Ansar Ullah",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write",
+      "Subagent orchestration",
+      "Planning",
+      "Verification",
+      "Git workflow"
+    ],
+    "websiteURL": "https://openai.com/codex",
+    "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
+    "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
+    "defaultPrompt": [
+      "Use Sprint Protocol to research and plan this work.",
+      "Use Sprint Protocol to write and review stories.",
+      "Use Sprint Protocol to execute and verify this sprint."
+    ],
+    "brandColor": "#1F7A72"
+  }
+}

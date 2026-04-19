@@ -1,0 +1,7 @@
+interface:
+  display_name: "Sprint Execute"
+  short_description: "Implement sprint stories"
+  brand_color: "#1F7A72"
+  default_prompt: "Use $sprint-execute to implement this sprint with Codex workers."
+policy:
+  allow_implicit_invocation: true

@@ -14,12 +14,13 @@ And you've thought: *"Why can't I do that?"*
 
 **This repository is for you.** The developer who feels one step behind. The founder with ideas but no time. The team where only one person "gets" AI.
 
-Four skills that make the complicated stuff simple:
+A focused set of skills and plugins that make the complicated stuff simple:
 - **`/prd`** — Create PRDs through conversation, not writing
 - **`/ralph-preflight`** — Validate everything before starting a Ralph loop
 - **`/setup-claude`** — Configure your repo optimally without reading 100 docs
 - **`/agent-browser`** — Browser automation for verifying UI actually works
 - **ProofOps Verification** — Review branches, fix issues, capture browser proof, and render proof videos
+- **Sprint Protocol** — Run Codex-native research, stories, execution, verification, and PR handoff
 
 Plus guides on how to actually use Claude Code productively.
 
@@ -40,10 +41,32 @@ npx @ansarullahanas/cc-guide add-skill setup-claude
 npx @ansarullahanas/cc-guide add-skill agent-browser
 ```
 
-### Add ProofOps Verification Plugin
+### Add Codex Plugins
 
 ```bash
 npx @ansarullahanas/cc-guide add-plugin proof-driven-verification
+npx @ansarullahanas/cc-guide add-plugin sprint-protocol
+```
+
+### Install A Plugin Globally For Codex
+
+Install once into your home Codex plugin catalog so it is available from any project on that computer:
+
+```bash
+npx @ansarullahanas/cc-guide add-plugin proof-driven-verification --global
+npx @ansarullahanas/cc-guide add-plugin sprint-protocol --global
+```
+
+This writes plugins into `~/plugins/<plugin-name>` and updates `~/.agents/plugins/marketplace.json`.
+On another computer, run the same command again after installing Codex and Node.
+
+Then ask Codex for a phase directly:
+
+```text
+Use Sprint Protocol to research and plan this work.
+Use sprint-stories to write stories for sprint <name>.
+Use sprint-execute to implement sprint <name>.
+Use sprint-verify to verify sprint <name> and prepare the PR.
 ```
 
 Optional one-command install plus prerequisite setup:
@@ -268,7 +291,8 @@ cc-guide/
 │       └── SKILL.md          # CLI reference
 │
 ├── plugins/
-│   └── proof-driven-verification/ # ProofOps verification plugin
+│   ├── proof-driven-verification/ # ProofOps verification plugin
+│   └── sprint-protocol/           # Codex sprint lifecycle plugin
 │
 ├── guides/
 │   ├── what-is-milhouse.md        # Philosophy and purpose

@@ -1,0 +1,32 @@
+{
+  "name": "cc-guide",
+  "interface": {
+    "displayName": "CC Guide Plugins"
+  },
+  "plugins": [
+    {
+      "name": "proof-driven-verification",
+      "source": {
+        "source": "local",
+        "path": "./plugins/proof-driven-verification"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "sprint-protocol",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sprint-protocol"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

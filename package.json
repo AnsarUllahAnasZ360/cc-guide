@@ -16,7 +16,9 @@
     "prd",
     "ralph-tui",
     "autonomous",
-    "development"
+    "development",
+    "codex",
+    "sprint"
   ],
   "author": "",
   "license": "MIT",

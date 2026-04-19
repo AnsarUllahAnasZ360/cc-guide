@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const AVAILABLE_SKILLS = {
@@ -21,7 +22,24 @@ const AVAILABLE_SKILLS = {
 const AVAILABLE_PLUGINS = {
   'proof-driven-verification': {
     description: 'ProofOps verification with code review, browser proof, and narrated videos',
-    folder: 'proof-driven-verification'
+    folder: 'proof-driven-verification',
+    category: 'Developer Tools',
+    ignoreArtifacts: true,
+    afterInstall: [
+      'Use it with: "Use ProofOps with subagents to verify this branch."',
+      '',
+      'Optional secure Deepgram key storage:',
+      '  DEEPGRAM_API_KEY=... node plugins/proof-driven-verification/scripts/deepgram-key.mjs set'
+    ]
+  },
+  'sprint-protocol': {
+    description: 'Codex-native sprint planning, story writing, execution, verification, and PR handoff',
+    folder: 'sprint-protocol',
+    category: 'Developer Tools',
+    afterInstall: [
+      'Use it with: "Use Sprint Protocol to research and plan this work."',
+      'Phase prompts: sprint-research, sprint-stories, sprint-review, sprint-execute, sprint-verify.'
+    ]
   }
 };
 
@@ -31,7 +49,7 @@ cc-add-skill - Add Claude Code skills to your project
 
 Usage:
   npx cc-guide add-skill <skill-name>
-  npx cc-guide add-plugin <plugin-name> [--setup] [--force]
+  npx cc-guide add-plugin <plugin-name> [--setup] [--force] [--global]
   npx cc-guide add-skill --list
 
 Available skills:
@@ -49,6 +67,9 @@ Examples:
   npx cc-guide add-skill setup-claude
   npx cc-guide add-skill --all
   npx cc-guide add-plugin proof-driven-verification
+  npx cc-guide add-plugin sprint-protocol
+  npx cc-guide add-plugin proof-driven-verification --global
+  npx cc-guide add-plugin sprint-protocol --global
   npx cc-guide add-plugin proof-driven-verification --setup
   npx cc-guide proofops --task "Verify this branch"
 `);
@@ -139,7 +160,12 @@ function addPlugin(pluginName, targetDir, options = {}) {
 
   const packageRoot = path.dirname(__dirname);
   const pluginSrc = path.join(packageRoot, 'plugins', plugin.folder);
-  const pluginDest = path.join(targetDir, 'plugins', plugin.folder);
+  const homeDir = os.homedir();
+  const installRoot = options.global ? homeDir : targetDir;
+  const pluginDest = path.join(installRoot, 'plugins', plugin.folder);
+  const marketplacePath = options.global
+    ? path.join(homeDir, '.agents', 'plugins', 'marketplace.json')
+    : path.join(targetDir, '.agents', 'plugins', 'marketplace.json');
 
   if (!fs.existsSync(pluginSrc)) {
     console.error(`Plugin source not found: ${pluginSrc}`);
@@ -155,17 +181,19 @@ function addPlugin(pluginName, targetDir, options = {}) {
   console.log(`Installing ${pluginName} plugin...`);
   console.log(`  From: ${pluginSrc}`);
   console.log(`  To:   ${pluginDest}`);
+  if (options.global) {
+    console.log(`  Scope: global (${homeDir})`);
+  }
 
   if (fs.existsSync(pluginDest)) {
     fs.rmSync(pluginDest, { recursive: true, force: true });
   }
   copyDir(pluginSrc, pluginDest);
 
-  const marketplacePath = path.join(targetDir, '.agents', 'plugins', 'marketplace.json');
   const marketplace = readJson(marketplacePath, {
-    name: 'local',
+    name: options.global ? 'home-local' : 'local',
     interface: {
-      displayName: 'Local Plugins'
+      displayName: options.global ? 'Home Plugins' : 'Local Plugins'
     },
     plugins: []
   });
@@ -181,7 +209,7 @@ function addPlugin(pluginName, targetDir, options = {}) {
       installation: 'AVAILABLE',
       authentication: 'ON_INSTALL'
     },
-    category: 'Developer Tools'
+    category: plugin.category || 'Developer Tools'
   };
   const existingIndex = marketplace.plugins.findIndex(item => item.name === pluginName);
   if (existingIndex >= 0) {
@@ -190,10 +218,14 @@ function addPlugin(pluginName, targetDir, options = {}) {
     marketplace.plugins.push(entry);
   }
   writeJson(marketplacePath, marketplace);
-  ensureArtifactsIgnored(targetDir);
+  if (plugin.ignoreArtifacts && !options.global) {
+    ensureArtifactsIgnored(targetDir);
+  }
 
   console.log(`Updated marketplace: ${marketplacePath}`);
-  console.log('Ensured artifacts/ is ignored by git.');
+  if (plugin.ignoreArtifacts && !options.global) {
+    console.log('Ensured artifacts/ is ignored by git.');
+  }
 
   if (options.setup) {
     const setupScript = path.join(pluginDest, 'scripts', 'setup.mjs');
@@ -207,9 +239,10 @@ function addPlugin(pluginName, targetDir, options = {}) {
   }
 
   console.log(`\n${pluginName} plugin installed.`);
-  console.log('\nUse it with: "Use ProofOps with subagents to verify this branch."');
-  console.log('\nOptional secure Deepgram key storage:');
-  console.log('  DEEPGRAM_API_KEY=... node plugins/proof-driven-verification/scripts/deepgram-key.mjs set');
+  if (Array.isArray(plugin.afterInstall) && plugin.afterInstall.length > 0) {
+    console.log('');
+    plugin.afterInstall.forEach(line => console.log(line));
+  }
 }
 
 function main() {
@@ -250,7 +283,8 @@ function main() {
 
     addPlugin(pluginName, targetDir, {
       force: args.includes('--force'),
-      setup: args.includes('--setup')
+      setup: args.includes('--setup'),
+      global: args.includes('--global')
     });
     return;
   }

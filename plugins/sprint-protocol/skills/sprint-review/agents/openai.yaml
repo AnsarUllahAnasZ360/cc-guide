@@ -1,0 +1,7 @@
+interface:
+  display_name: "Sprint Review"
+  short_description: "Audit stories before execution"
+  brand_color: "#1F7A72"
+  default_prompt: "Use $sprint-review to audit these stories before execution."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Sprint Stories"
+  short_description: "Write sprint story files"
+  brand_color: "#1F7A72"
+  default_prompt: "Use $sprint-stories to write implementation stories for this sprint."
+policy:
+  allow_implicit_invocation: true

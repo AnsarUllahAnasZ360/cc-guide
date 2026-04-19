@@ -1,0 +1,7 @@
+interface:
+  display_name: "Sprint Verify"
+  short_description: "Verify sprint work with evidence"
+  brand_color: "#1F7A72"
+  default_prompt: "Use $sprint-verify to verify this sprint and prepare the PR."
+policy:
+  allow_implicit_invocation: true
