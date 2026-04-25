@@ -9,6 +9,10 @@ const AVAILABLE_SKILLS = {
     description: 'Create self-verifying PRDs for autonomous execution',
     folder: 'prd'
   },
+  'ralph-preflight': {
+    description: 'Validate Ralph TUI config, templates, PRDs, and launch readiness',
+    folder: 'ralph-preflight'
+  },
   'setup-claude': {
     description: 'Initialize or audit repositories for Claude Code',
     folder: 'setup-claude'
@@ -16,6 +20,10 @@ const AVAILABLE_SKILLS = {
   'agent-browser': {
     description: 'Headless browser automation and E2E testing',
     folder: 'agent-browser'
+  },
+  'sprint-protocol': {
+    description: 'Cross-agent sprint protocol for Claude, Codex, and Cloud Code',
+    folder: 'sprint-protocol'
   }
 };
 
@@ -33,12 +41,13 @@ const AVAILABLE_PLUGINS = {
     ]
   },
   'sprint-protocol': {
-    description: 'Codex-native sprint planning, story writing, execution, verification, and PR handoff',
+    description: 'Codex-native sprint planning, story writing, execution, optional QA, and PR handoff',
     folder: 'sprint-protocol',
     category: 'Developer Tools',
     afterInstall: [
       'Use it with: "Use Sprint Protocol to research and plan this work."',
-      'Phase prompts: sprint-research, sprint-stories, sprint-review, sprint-execute, sprint-verify.'
+      'Phase prompts: sprint-research, sprint-stories, sprint-review, sprint-execute, sprint-verify.',
+      'Use sprint-verify only when you want the dedicated QA/evidence pass.'
     ]
   }
 };
@@ -48,9 +57,9 @@ function printUsage() {
 cc-add-skill - Add Claude Code skills to your project
 
 Usage:
-  npx cc-guide add-skill <skill-name>
-  npx cc-guide add-plugin <plugin-name> [--setup] [--force] [--global]
-  npx cc-guide add-skill --list
+  npx @ansarullahanas/cc-guide add-skill <skill-name>
+  npx @ansarullahanas/cc-guide add-plugin <plugin-name> [--setup] [--force] [--global]
+  npx @ansarullahanas/cc-guide add-skill --list
 
 Available skills:
 ${Object.entries(AVAILABLE_SKILLS).map(([name, info]) =>
@@ -63,15 +72,16 @@ ${Object.entries(AVAILABLE_PLUGINS).map(([name, info]) =>
 ).join('\n')}
 
 Examples:
-  npx cc-guide add-skill prd
-  npx cc-guide add-skill setup-claude
-  npx cc-guide add-skill --all
-  npx cc-guide add-plugin proof-driven-verification
-  npx cc-guide add-plugin sprint-protocol
-  npx cc-guide add-plugin proof-driven-verification --global
-  npx cc-guide add-plugin sprint-protocol --global
-  npx cc-guide add-plugin proof-driven-verification --setup
-  npx cc-guide proofops --task "Verify this branch"
+  npx @ansarullahanas/cc-guide add-skill prd
+  npx @ansarullahanas/cc-guide add-skill ralph-preflight
+  npx @ansarullahanas/cc-guide add-skill setup-claude
+  npx @ansarullahanas/cc-guide add-skill --all
+  npx @ansarullahanas/cc-guide add-plugin proof-driven-verification
+  npx @ansarullahanas/cc-guide add-plugin sprint-protocol
+  npx @ansarullahanas/cc-guide add-plugin proof-driven-verification --global
+  npx @ansarullahanas/cc-guide add-plugin sprint-protocol --global
+  npx @ansarullahanas/cc-guide add-plugin proof-driven-verification --setup
+  npx @ansarullahanas/cc-guide proofops --task "Verify this branch"
 `);
 }
 
@@ -124,7 +134,7 @@ function addSkill(skillName, targetDir) {
   const skill = AVAILABLE_SKILLS[skillName];
   if (!skill) {
     console.error(`Unknown skill: ${skillName}`);
-    console.log(`Run 'npx cc-guide add-skill --list' to see available skills`);
+    console.log(`Run 'npx @ansarullahanas/cc-guide add-skill --list' to see available skills`);
     process.exit(1);
   }
 
@@ -154,7 +164,7 @@ function addPlugin(pluginName, targetDir, options = {}) {
   const plugin = AVAILABLE_PLUGINS[pluginName];
   if (!plugin) {
     console.error(`Unknown plugin: ${pluginName}`);
-    console.log(`Run 'npx cc-guide add-plugin --list' to see available plugins`);
+    console.log(`Run 'npx @ansarullahanas/cc-guide add-plugin --list' to see available plugins`);
     process.exit(1);
   }
 
@@ -327,6 +337,7 @@ Next steps:
   2. Run the skill with /<skill-name> in Claude Code
   3. For setup-claude, run: /setup-claude init or /setup-claude audit
   4. For prd, run: /prd
+  5. For cross-agent installs, use: npx skills add AnsarUllahAnasZ360/cc-guide --skill <skill-name> -a claude-code -a codex
 `);
 }
 

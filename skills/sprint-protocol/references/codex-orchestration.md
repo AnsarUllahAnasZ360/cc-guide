@@ -14,7 +14,7 @@ Use this reference in every Sprint Protocol phase.
 | Close completed agents | `close_agent` | Do this after integrating the result. |
 | Large homogeneous CSV work | `spawn_agents_on_csv` | Use for read-only audits or story-writing shards, not risky overlapping code edits. |
 | Discover external tools | `tool_search` | Prefer plugin tools/skills for GitHub, Vercel, browser, and verification flows. |
-| Durable wakeup | `automation_update` heartbeat | Only when the user wants continued monitoring or later follow-up. |
+| Durable wakeup | `automation_update` heartbeat via `tool_search` | Only when the user wants continued monitoring or later follow-up. Discover the automation tool first. |
 
 ## Lead Role
 
@@ -56,39 +56,41 @@ Use the available Codex agent roles instead of Claude model names:
 - `worker`: bounded code edits, story-file creation, fix implementation.
 - default agent: complex synthesis or cross-cutting tasks when no narrower role fits.
 
-If the user asks for many agents, parallelize independent read-only work freely. For code edits, cap active workers at two unless the stories touch clearly disjoint areas.
+If the user asks for many agents, parallelize independent read-only work freely. For code edits, ask the user for execution concurrency during Phase 4: 1, 2, 3, or 4 active stories. Treat that number as a maximum, then reduce it when dependencies, conflicts, migrations, or dirty worktree state make parallel work unsafe.
 
 ## Durable State
 
-`state.md` is the lead ledger. Update it at phase start, before spawning a batch, after integrating a batch, and before any pause.
+The standard sprint memory surface is the sprint folder:
 
-Minimum fields:
+- `research.md` and `plan.md` define intent and sprint boundaries
+- `README.md` and stories define execution
+- `verification-checklist.md` defines what must be checked
+- `progress.md` is the append-only implementation ledger
+- `sprint-completion.md` records what was delivered and what QA should verify
+- `verification-report.md` is created only by explicit Phase 5 verification
 
-- current phase and status
-- current branch and base branch
-- active agents and assigned work
-- pending queue
-- blockers and decisions
-- resume instructions
+`progress.md` is append-only. Workers must read all relevant entries before editing and append one entry before completion.
 
-`progress.md` is the worker ledger. It is append-only. Workers must read all entries before editing and append one entry before completion.
+If a run is exceptionally long, the lead may create an optional `orchestration-notes.md` for active queues, blockers, and resume instructions. Do not make it part of the required sprint artifact contract.
 
 ## Git Safety
 
 - Inspect `git status --short --branch` before edits and before commits.
 - Never revert unrelated user changes.
 - Workers must stage specific files only.
-- Keep one commit per story when possible.
-- Verification fixes may use one or more `[VERIFY]` commits, grouped by issue or story.
+- Default to one sprint commit after the lead has reviewed, tested, and written `sprint-completion.md`.
+- Verification fixes may use one follow-up `[VERIFY]` commit when Phase 5 runs after the sprint commit.
 
 ## Compaction Recovery
 
 After compaction or resume:
 
-1. Read `state.md`.
+1. Read `plan.md`.
 2. Read `README.md` if it exists.
-3. Read all of `progress.md` if Phase 4 or later.
-4. Run `node plugins/sprint-protocol/scripts/sprint-doctor.mjs <sprint-name>`.
+3. Read all relevant entries in `progress.md` if Phase 4 or later.
+4. Run the sprint doctor:
+   - repo-local install: `node plugins/sprint-protocol/scripts/sprint-doctor.mjs <sprint-name>`
+   - global install: `node ~/plugins/sprint-protocol/scripts/sprint-doctor.mjs <sprint-name>`
 5. Rebuild `update_plan` from the artifacts.
 6. Continue from the first incomplete queue item.
 

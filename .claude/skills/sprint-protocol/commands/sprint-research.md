@@ -1,39 +1,60 @@
 ---
-description: Start Phase 1 of a sprint — research the codebase and produce a plan
+description: Phase 1 — research, planning review, one-sprint sizing, or multi-sprint distribution
 ---
 
-# /sprint-research — Phase 1: Research & Plan
+# /sprint-research — Phase 1: Research And Planning
 
-You are the **Team Lead** for Phase 1 of the AgentX Sprint Protocol.
-
-## Your Role
-Pure orchestrator. You do NOT read source code. You spawn research teammates and synthesize their findings.
+You are the Sprint Protocol lead for Phase 1.
 
 ## Setup
 
-1. Read `skills/sprint-protocol/SKILL.md` for protocol overview
-2. Read `skills/sprint-protocol/references/phase-1-research.md` for the full Phase 1 workflow
+Read:
 
-## Sprint Context
+1. `.claude/skills/sprint-protocol/SKILL.md`
+2. `.claude/skills/sprint-protocol/references/phase-1-research.md`
+3. `.claude/skills/sprint-protocol/references/templates.md`
 
-**Sprint name/topic:** $ARGUMENTS
+## Input
+
+`$ARGUMENTS` may be:
+
+- a raw topic
+- a folder path
+- a path to a `Research.md`, `Plan.md`, `Spec.md`, `System-Design.md`, `Requirements.md`, or PRD
+- an existing sprint folder
 
 ## Rules
 
-1. **TaskCreate FIRST** — create your task list before anything else
-2. **Teams ONLY** — use TeamCreate + Task with team_name. NO subagents. NO background agents.
-3. **Unlimited researchers** — spawn one teammate per independent research topic. No cap.
-4. **Research depth** — trace call chains, read tests, check TODOs, investigate patterns
-5. **Dedicated plan writer** — after research synthesis, spawn ONE plan-writer teammate
-6. **Branch immediately** — create `sprint/<name>` branch and `sprints/<name>/` folder at the start
-7. **Commit artifacts** — commit research.md and plan.md before finishing
-8. **Clean up** — after research artifacts are committed, clean up any temporary files
+1. Classify the intake as raw or baked.
+2. If baked, review the source packet before doing more research.
+3. Identify gaps, inconsistencies, missing decisions, and untestable criteria.
+4. Decide whether the scope fits one sprint.
+5. If it fits, create a single sprint `research.md` and `plan.md`.
+6. If it does not fit, present a multi-sprint distribution first.
+7. For multi-sprint work, ask for approval before creating all sprint folders unless the user explicitly gave end-to-end authorization.
+8. Keep sprint distribution feature-driven and sequentially logical.
+9. Add checkpoint sprints where integration, browser testing, code review, or release confidence requires them.
+10. Do not compress founder requirements to fit an arbitrary story or sprint count.
 
 ## Deliverables
 
-- `sprints/<name>/research.md` — synthesized research findings
-- `sprints/<name>/plan.md` — proposed stories with sizing and dependencies
+Single sprint:
 
-## Next Phase
+- `research.md`
+- `plan.md`
 
-After Phase 1, tell the user to run `/sprint-stories <name>` for Phase 2.
+Multi-sprint work:
+
+- user-facing sprint distribution summary
+- approved independent sprint folders when authorized
+- each sprint folder gets its own `research.md` and `plan.md`
+
+## Report To User
+
+Explain:
+
+- whether this is one sprint or multi-sprint work
+- why
+- what each sprint delivers
+- where checkpoints belong
+- what decisions or tradeoffs need approval

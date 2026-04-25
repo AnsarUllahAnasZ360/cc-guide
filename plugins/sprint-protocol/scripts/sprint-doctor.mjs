@@ -51,22 +51,22 @@ function inferPhase(artifacts) {
   if (!artifacts.research || !artifacts.plan) return "phase-1";
   if (!artifacts.readme || artifacts.storyCount === 0) return "phase-2";
   if (!artifacts.verificationChecklist) return "phase-3";
-  if (!artifacts.sprintCompletion) return "phase-4";
-  if (!artifacts.verificationReport) return "phase-5";
-  return "complete";
+  if (!artifacts.progress || !artifacts.sprintCompletion) return "phase-4";
+  if (!artifacts.verificationReport) return "ready-for-verification";
+  return "verified";
 }
 
 const branch = git(["branch", "--show-current"]);
 const status = git(["status", "--short", "--branch"]);
 const scripts = readPackageScripts();
-const sprintDir = sprintName ? `sprints/${sprintName}` : null;
+const sprintDir = sprintName ? (sprintName.includes("/") ? sprintName : `sprints/${sprintName}`) : null;
+const sprintSlug = sprintDir ? path.basename(sprintDir) : null;
 const storiesDir = sprintDir ? `${sprintDir}/stories` : null;
 const stories = storiesDir ? listStories(storiesDir) : [];
 
 const artifacts = sprintDir
   ? {
       exists: exists(sprintDir),
-      state: exists(`${sprintDir}/state.md`),
       research: exists(`${sprintDir}/research.md`),
       plan: exists(`${sprintDir}/plan.md`),
       readme: exists(`${sprintDir}/README.md`),
@@ -86,11 +86,8 @@ if (!sprintName) warnings.push("No sprint name supplied.");
 if (artifacts && artifacts.storyCount > 15) {
   warnings.push(`Story count is ${artifacts.storyCount}; consider splitting into waves.`);
 }
-if (artifacts && artifacts.exists && !artifacts.state) {
-  warnings.push("state.md is missing; create it before long-running orchestration.");
-}
-if (sprintName && branch.ok && branch.stdout && branch.stdout !== `sprint/${sprintName}`) {
-  warnings.push(`Current branch is ${branch.stdout}, not sprint/${sprintName}.`);
+if (sprintSlug && branch.ok && branch.stdout && branch.stdout !== `sprint/${sprintSlug}`) {
+  warnings.push(`Current branch is ${branch.stdout}, not sprint/${sprintSlug}.`);
 }
 
 const recommendedCommands = {
@@ -121,14 +118,13 @@ if (jsonMode) {
   if (artifacts) {
     console.log(`phase: ${report.inferredPhase}`);
     console.log(`stories: ${artifacts.storyCount}`);
-    console.log(`state.md: ${artifacts.state ? "yes" : "no"}`);
     console.log(`research.md: ${artifacts.research ? "yes" : "no"}`);
     console.log(`plan.md: ${artifacts.plan ? "yes" : "no"}`);
     console.log(`README.md: ${artifacts.readme ? "yes" : "no"}`);
     console.log(`verification-checklist.md: ${artifacts.verificationChecklist ? "yes" : "no"}`);
     console.log(`progress.md: ${artifacts.progress ? "yes" : "no"}`);
     console.log(`sprint-completion.md: ${artifacts.sprintCompletion ? "yes" : "no"}`);
-    console.log(`verification-report.md: ${artifacts.verificationReport ? "yes" : "no"}`);
+    console.log(`verification-report.md: ${artifacts.verificationReport ? "yes" : "no"} (optional Phase 5 artifact)`);
   }
   console.log("commands:");
   for (const [name, command] of Object.entries(recommendedCommands)) {

@@ -1,239 +1,210 @@
 # Phase 2: Story Writing
 
-Write detailed story files from the sprint plan.
+Phase 2 turns an approved sprint plan into executable worker stories. A story is not a file, endpoint, component, or isolated test task. A story is a coherent piece of feature delivery that a worker can research, implement, test, review, and hand back.
 
-**Command:** `/sprint-stories`
-**Team config:** 2 story writers at a time, max 2 stories per writer
-**Deliverables:** stories/, README.md (committed to `sprint/<name>` branch)
-**Prerequisites:** research.md and plan.md exist in `sprints/<name>/`
+Do not force a fixed story count. The story count should come from the feature requirements, dependency map, risk, testing boundaries, and expected worker scope.
 
-## Phase 2 Workflow
+## Prerequisites
 
-### 1. Verify Prerequisites
+For a normal sprint:
 
-Read and verify these files exist:
-- `sprints/<name>/research.md` — Phase 1 research output
-- `sprints/<name>/plan.md` — Phase 1 plan output
+- `research.md`
+- `plan.md`
 
-If they don't exist, Phase 1 was not completed. Stop and inform the user.
+For a checkpoint sprint:
 
-### 2. Read Context
+- checkpoint `research.md` and `plan.md`
+- previous sprint `README.md` files
+- previous sprint `sprint-completion.md` files
+- previous sprint `verification-checklist.md` files
+- previous sprint `verification-report.md` files when they exist
 
-Read both files fully. Understand:
-- The sprint goal and scope
-- Each proposed story's title, brief, tier, and research items
-- Dependencies between stories
-- The research findings for each area
+If prerequisite artifacts are missing, stop and run Phase 1 or ask the user for the missing source folder.
 
-### 3. Create Task List
+## Outputs
 
-Call `TaskCreate` for every story from plan.md:
-- Subject: "Write STORY-NNN: [title]"
-- Description: "Tier: [tier], Research items: [items]"
+- `README.md`
+- `stories/STORY-NNN.md`
+- updated planning notes if story writing discovers scope problems
 
-### 4. Create Story Writing Team
+## Lead Workflow
 
-```
-TeamCreate:
-  team_name: "sprint-<name>-stories"
-```
+1. Read the sprint folder, `research.md`, `plan.md`, and any multi-sprint context embedded in the plan.
+2. Create a task list for story extraction, writer batches, skill routing, test strategy review, and final audit.
+3. Build a dependency map before assigning writers.
+4. Decide the story set from the feature boundaries. Do not start from a target number.
+5. Spawn story writers in bounded batches. Two writers at a time is a normal default, but reduce to one if the stories are tightly coupled.
+6. Require each writer to perform targeted codebase research before writing.
+7. Audit every story against `story-template.md`.
+8. Ensure every story includes mandatory Required Skills And Tools and Feature-Level Test Plan sections.
+9. Write the sprint `README.md`.
+10. Report story count, dependency order, difficulty distribution, required skills, testing strategy, and any recommended checkpoint.
 
-### 5. Spawn Story Writers (Phased Batching)
+## Story Count Guidance
 
-**Spawn 2 story writers at a time.** Each writer handles up to 2 stories.
+Use enough stories to make execution reliable, but not so many that coordination dominates the work.
 
-Phased batching example for 10 stories:
-- **Batch A:** Writer 1 (STORY-001, STORY-002), Writer 2 (STORY-003, STORY-004)
-- **Batch B:** Writer 1 (STORY-005, STORY-006), Writer 2 (STORY-007, STORY-008)
-- **Batch C:** Writer 1 (STORY-009, STORY-010)
+Split into separate stories when:
 
-Wait for each batch to complete before starting the next.
+- two pieces can be implemented and tested independently
+- one piece is hard and another is simple
+- separate domains would create unnecessary worker confusion
+- a dependency must land before later work can be safely attempted
+- test strategy differs meaningfully between pieces
 
-Use the Story Writer Spawn Template below for each writer.
+Keep work together when:
 
-### 6. Review Returned Stories
+- schema, backend, UI, and tests are all part of one user-visible feature
+- the same files and concepts would be touched by multiple thin stories
+- tests are the only reason for a separate story
+- several bugs belong to the same workflow or component family
+- splitting would create a non-functional intermediate state
 
-For each story file returned, verify:
-- Follows the template from `references/story-template.md`
-- Passes the Story Compliance Checklist (below)
-- Sizing is within limits
-- Research items were actually investigated (not just copied from plan.md)
+If a sprint has many stories, explain why. If a sprint has only one story, explain why that is safe and testable.
 
-If a story fails compliance, either:
-- Fix it yourself (if minor — missing section, wrong format)
-- Spawn a new writer to revise it (if major — wrong scope, bad sizing)
+## Required Story Sections
 
-### 7. Write README.md
+Every story must include:
 
-Write the sprint README.md using the template from `references/templates.md`:
-- Sprint goal and scope from plan.md
-- Stories table with all stories, tiers, and statuses
-- Dependencies from plan.md
+- overview
+- problem and current state
+- purpose and user/business impact
+- solution approach
+- research items
+- required skills and tools
+- difficulty and model-routing guidance
+- implementation tasks
+- feature-level test plan
+- acceptance criteria
+- definition of done
+- verification handoff
+- codebase references
+- notes and non-goals
 
-### 8. Commit All Artifacts
+The **Required Skills And Tools** section is mandatory. It should not be generic. It must tell the worker what to load or discover before implementation.
 
-```bash
-git add sprints/<name>/stories/ sprints/<name>/README.md
-git commit -m "Sprint <name>: Phase 2 — stories and README"
-```
+The **Feature-Level Test Plan** section is mandatory. It must identify the tests the worker should write or update for that story and the exact targeted commands to run where known.
 
-### 9. Shut Down Team
+## Skill Routing Examples
 
-```
-SendMessage: type: "shutdown_request" to each writer
-TeamDelete
-```
+Story writers should choose required skills by stack and task type:
 
-### 10. Report to User
+| Work type | Skills/tools to consider |
+| --- | --- |
+| Frontend UI | frontend design, React best practices, Next.js best practices, shadcn/ui, accessibility, visual/browser verification, project design system |
+| Backend API/data | Supabase, Convex, Laravel, FastAPI, database migration, auth/permissions, queues, API testing |
+| AI agents | AI SDK, AI Elements, LiveKit agents, LangGraph/Deep Agents, memory, orchestration, tool-calling, evals, observability |
+| Verification | Agent Browser CLI in Claude/Cloud Code, Browser Use in Codex, code review skill, security review, framework diagnostics, test runner docs |
+| Release/PR | GitHub/PR skill, CI diagnostics, changelog/release notes if relevant |
 
-Present:
-- Total stories written
-- Brief summary of each story
-- Any compliance issues found and resolved
-- Ask: "Ready to proceed to Phase 3 (Review & Audit)?"
+If the exact skill is unknown, write a discovery instruction:
 
----
-
-## Story Writer Spawn Template
-
-```
-Task tool parameters:
-  team_name: "sprint-<name>-stories"
-  name: "story-writer-N"
-  model: "sonnet"
-  subagent_type: "general-purpose"
-  prompt: |
-    You are a story writer for Sprint <name>.
-
-    TASK: Write detailed story files for assigned stories.
-
-    READ FIRST:
-    1. CLAUDE.md — project context
-    2. sprints/<name>/research.md — research findings
-    3. sprints/<name>/plan.md — sprint plan with proposed stories
-    4. Read the story template at: skills/sprint-protocol/references/story-template.md
-
-    YOUR ASSIGNED STORIES:
-    - STORY-NNN: [Title] — [Brief from plan.md]
-    - STORY-NNN: [Title] — [Brief from plan.md]
-
-    CRITICAL INSTRUCTION — DO YOUR OWN RESEARCH:
-    The plan.md gives you a starting point, but do NOT just copy from
-    research.md. For each story:
-    1. Read the files listed in the plan's "Research Items" column
-    2. Explore BEYOND those files — look at related code, tests, patterns
-    3. Find better approaches than what the plan suggests
-    4. Discover edge cases the plan missed
-    5. Understand the full scope before writing
-
-    FOR EACH STORY, WRITE:
-    sprints/<name>/stories/STORY-NNN.md
-
-    Follow the template exactly. Key requirements:
-    - Problem section with specific file paths and line numbers
-    - Solution approach that gives direction without prescribing HOW
-    - "Note to implementing agent" callout about not following blindly
-    - Research Items section with specific files to investigate
-    - 5-12 substantial tasks (not micro-steps)
-    - MUST include: write unit tests, run typecheck/lint, run test suite,
-      code self-review, update progress.md
-    - NO browser verification tasks (that's Phase 5)
-    - Acceptance criteria with binary pass/fail conditions
-    - MUST include: all tests pass, typecheck passes, lint passes
-    - Codebase references with exact file:line paths
-
-    SIZING RULES:
-    - 10-30 files per story
-    - 500-2000 lines per story
-    - 5-12 tasks per story
-    - 20-30 min agent time per story
-    - Vertical slices only
-
-    REPORT: When done, list the stories you wrote and any concerns
-    about sizing.
+```text
+Use ToolSearch or the platform skill discovery mechanism to locate the current <domain> skill before editing. If no skill exists, follow the project-local patterns in <file/path> and document the fallback in progress.md.
 ```
 
----
+## Testing Requirements
 
-## Story Compliance Checklist
+Every story must define a dedicated testing system for its own work:
 
-Every story MUST pass these checks:
+- the first failing test or existing failing behavior that proves the change is needed, where practical
+- new or updated unit tests for the changed behavior
+- integration/API tests where the feature crosses boundaries
+- component tests where UI state and behavior matter
+- targeted command(s) for the story's feature area
+- expected output or pass condition
+- what broader checks should be run before sprint completion
 
-### Structure
-- [ ] Has Overview section (1-3 sentences)
-- [ ] Has Problem section with file paths and line numbers
-- [ ] Has Current State subsection with research findings
-- [ ] Has Solution Approach with "Note to implementing agent" callout
-- [ ] Has Research Items section with specific files to investigate
-- [ ] Has Tasks section with 5-12 substantial tasks
-- [ ] Has Acceptance Criteria with binary pass/fail conditions
-- [ ] Has Codebase References with exact file:line paths
-- [ ] Has Complexity tier assigned (complex or simple)
+Do not require the full repository test suite for every worker if it is too slow or unrelated. Workers run targeted checks for their feature area. The lead runs broader sprint-level checks before the sprint commit and again in verification.
 
-### Mandatory Tasks
-- [ ] Has "Write unit tests for [specific functionality]" task
-- [ ] Has "Run typecheck and lint — fix all errors" task
-- [ ] Has "Run full test suite — fix any failures" task
-- [ ] Has "Code self-review: error handling, edge cases, type safety" task
-- [ ] Has "Update progress.md with insights" task
-- [ ] Has "Research codebase and refine implementation plan" as first task
+## Quality Closure Story
 
-### Forbidden Elements
-- [ ] NO browser verification tasks
-- [ ] NO "verify in browser" steps
-- [ ] NO horizontal slicing (must be vertical)
+For larger, risky, or multi-story sprints, consider adding a dedicated quality closure story. This is not a replacement for Phase 5. It is implementation-phase hardening.
 
-### Sizing
-- [ ] 10-30 files in scope
-- [ ] 500-2000 lines estimated
-- [ ] 5-12 tasks
-- [ ] 20-30 min estimated agent time
-- [ ] Vertical slice (touches all needed layers)
-- [ ] Related bugs packed together (not separate stories)
-- [ ] Tests included (not a separate story)
-- [ ] Story justifies its scope
+Use a quality closure story when:
 
----
+- multiple workers touch shared surfaces
+- there is meaningful security/auth risk
+- generated code or migrations need review
+- the sprint changes a critical workflow
+- the feature-specific test suite needs consolidation
 
-## Sizing Guide
+A quality closure story may include:
 
-### When to Pack More In
+- code review of sprint changes so far
+- feature-level test suite consolidation
+- targeted bug fixes found during review
+- security and permission checks
+- performance or accessibility checks where relevant
 
-Pack more into a story when:
-- Two proposed stories share most of their files
-- A story has fewer than 5 tasks or under 500 lines
-- You can describe two stories in one sentence
-- A "test story" exists separately from its feature
-- Individual bug stories exist for bugs in the same area
+It must still be scoped. Do not turn it into an uncontrolled refactor.
 
-### When to Split
+## Checkpoint Sprint Stories
 
-Split a story when:
-- Combined scope exceeds 30 files
-- Combined lines exceed 2000
-- Domains are completely unrelated
-- Implementation has hard sequential deployment dependencies
+Checkpoint sprints are story-written like normal sprints, but their stories focus on integration confidence.
 
-### Examples
+Common checkpoint story types:
 
-**Good packing:**
-- "Add client CRM: schema, list page, detail page, edit form, navigation" — ONE story (~25 files, ~1500 lines)
-- "Fix navigation bugs: back button, breadcrumbs, sidebar highlighting, mobile menu, deep links" — ONE story (~15 files, ~800 lines)
+- cross-sprint code review and bug triage
+- browser workflow verification through the platform browser tool
+- regression testing for core routes or flows
+- integration repair for features shipped across previous sprints
+- release-readiness documentation
 
-**Bad packing (too granular):**
-- "Add client schema" + "Add client list page" + "Add client detail page" + "Add client edit form" — Should be ONE story
-- "Fix back button" + "Fix breadcrumbs" + "Fix sidebar" — Should be ONE story
+Checkpoint stories must read prior sprint `README.md`, `sprint-completion.md`, and `verification-checklist.md` files. They should also read `verification-report.md` files when those reports already exist. They should not re-litigate the original plan; they should verify what was planned, what was delivered, what still needs to hold together, and whether a dedicated verification report needs to be created now.
 
-**Correct split:**
-- "Add billing system" + "Add whiteboard editor" — Completely unrelated domains, correct to split
-- "Add search: full-text indexing + API" + "Add search: UI + filters" — Over 40 files combined, correct to split
+## Story Writer Prompt Shape
 
----
+```text
+You are a story writer for Sprint <sprint-folder>.
 
-## Compaction Recovery
+Assigned story area:
+- <feature or quality area>
 
-If compaction happens during Phase 2:
-1. `TaskList` — see which stories are written
-2. Read `sprints/<name>/plan.md` for the full list
-3. Check which story files exist in `sprints/<name>/stories/`
-4. Continue from where your task list says you are
+Read first:
+- sprint research.md
+- sprint plan.md
+- multi-sprint context from `plan.md` if present
+- story template
+- relevant project guidance
+
+Before writing:
+- research the referenced code paths and nearby tests
+- identify required skills/tools for the worker
+- identify feature-level tests and targeted commands
+- challenge whether this should be one story or split/merged
+
+Write:
+- sprints/.../stories/STORY-NNN.md
+
+Rules:
+- Do not implement product code.
+- Do not create browser verification tasks inside normal implementation stories unless this is a checkpoint sprint.
+- Include required skills/tools.
+- Include a dedicated feature-level test plan.
+- Include difficulty and model-routing guidance.
+- Include definition of done.
+- Keep tasks substantial and verifiable.
+
+Return:
+- story files written
+- skill routing decisions
+- testing decisions
+- sizing concerns
+- any scope or dependency issue found
+```
+
+## Story Audit Checklist
+
+Reject or revise any story that:
+
+- lacks required skills/tools
+- lacks feature-level tests
+- does not state definition of done
+- has vague acceptance criteria
+- splits tests away from implementation
+- horizontally splits a single feature by layer
+- instructs workers to do broad browser verification during a normal implementation story
+- ignores dependencies from the sprint plan
+- claims a file exists without marking it as verified or inferred
+- is too broad for one worker or too thin to justify its own story

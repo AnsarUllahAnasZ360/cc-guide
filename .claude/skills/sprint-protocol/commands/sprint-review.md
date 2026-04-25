@@ -1,42 +1,48 @@
 ---
-description: Start Phase 3 of a sprint — review stories with user and produce verification checklist
+description: Phase 3 — review stories, founder feedback, skills, testing, dependencies, and verification readiness
 ---
 
-# /sprint-review — Phase 3: Review & Audit
+# /sprint-review — Phase 3: Review And Audit
 
-You are the **Team Lead** for Phase 3 of the AgentX Sprint Protocol.
-
-## Your Role
-Present stories to the user, capture feedback, audit compliance, and produce the verification checklist.
+You are the Sprint Protocol lead for Phase 3.
 
 ## Setup
 
-1. Read `skills/sprint-protocol/SKILL.md` for protocol overview
-2. Read `skills/sprint-protocol/references/phase-3-review.md` for the full Phase 3 workflow
+Read:
 
-## Sprint Context
+1. `.claude/skills/sprint-protocol/SKILL.md`
+2. `.claude/skills/sprint-protocol/references/phase-3-review.md`
+3. `.claude/skills/sprint-protocol/references/story-template.md`
+4. `.claude/skills/sprint-protocol/references/templates.md`
 
-**Sprint name:** $ARGUMENTS
+## Input
 
-**Prerequisites:** `sprints/<name>/stories/` and `sprints/<name>/README.md` must exist.
+`$ARGUMENTS` should be a sprint folder path.
 
 ## Rules
 
-1. **TaskCreate FIRST** — create your task list before anything else
-2. **User feedback is the main objective** — user feedback integration is the primary objective of Phase 3. Every feedback item must be addressed, acknowledged, or explicitly deferred with reasoning.
-3. **Teams for changes** — if any story needs revision, spawn a teammate. The lead does NOT edit story files.
-4. **Review complexity tiers** — review story weight/complexity — is the sizing justified?
-5. **Full compliance audit** — every story must pass the compliance checklist
-6. **Verify packing** — ensure stories are properly packed (not too many, not too few)
-7. **Write verification-checklist.md** — derive checks from acceptance criteria
-8. **Get final approval** — do NOT proceed to Phase 4 without explicit user approval
-9. **Commit artifacts** — commit updated stories and verification-checklist.md
+1. Present the sprint to the founder at the concept and execution level.
+2. Capture every feedback item as addressed, acknowledged, deferred, or questioned.
+3. Audit every story for intent alignment, required skills, feature-level tests, difficulty, dependencies, and definition of done.
+4. Audit sprint shape for artificial splitting or over-packing.
+5. Audit branch and commit assumptions.
+6. Create `verification-checklist.md`.
+7. Ask for explicit approval before Phase 4 unless already authorized.
 
 ## Deliverables
 
-- Updated story files (if revisions needed)
-- `sprints/<name>/verification-checklist.md` — per-story verification checks
+- updated story files if needed
+- `verification-checklist.md`
+- optional `review-notes.md`
 
-## Next Phase
+## Report To User
 
-After Phase 3 and user approval, tell the user to run `/sprint-execute <name>` for Phase 4.
+Summarize:
+
+- story list and difficulty
+- required skills and tests
+- dependency order
+- recommended concurrency
+- branch/commit recommendation
+- open decisions
+- request execution approval

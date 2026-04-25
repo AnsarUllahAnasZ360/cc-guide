@@ -20,7 +20,7 @@ A focused set of skills and plugins that make the complicated stuff simple:
 - **`/setup-claude`** — Configure your repo optimally without reading 100 docs
 - **`/agent-browser`** — Browser automation for verifying UI actually works
 - **ProofOps Verification** — Review branches, fix issues, capture browser proof, and render proof videos
-- **Sprint Protocol** — Run Codex-native research, stories, execution, verification, and PR handoff
+- **Sprint Protocol** — Run Codex-native research, stories, execution, optional QA verification, and PR handoff
 
 Plus guides on how to actually use Claude Code productively.
 
@@ -32,23 +32,32 @@ Plus guides on how to actually use Claude Code productively.
 
 ```bash
 # Add all skills (recommended)
-npx @ansarullahanas/cc-guide add-skill --all
+npx github:AnsarUllahAnasZ360/cc-guide#main add-skill --all
 
 # Or add individually
-npx @ansarullahanas/cc-guide add-skill prd
-npx @ansarullahanas/cc-guide add-skill ralph-preflight
-npx @ansarullahanas/cc-guide add-skill setup-claude
-npx @ansarullahanas/cc-guide add-skill agent-browser
+npx github:AnsarUllahAnasZ360/cc-guide#main add-skill prd
+npx github:AnsarUllahAnasZ360/cc-guide#main add-skill ralph-preflight
+npx github:AnsarUllahAnasZ360/cc-guide#main add-skill setup-claude
+npx github:AnsarUllahAnasZ360/cc-guide#main add-skill agent-browser
+```
+
+### Install Sprint Protocol With skills.sh
+
+Install the Sprint Protocol skill directly into Claude Code and Codex:
+
+```bash
+npx skills add AnsarUllahAnasZ360/cc-guide --skill sprint-protocol -a claude-code -a codex -g -y
+```
+
+To install every skill from this repo into both agents:
+
+```bash
+npx skills add AnsarUllahAnasZ360/cc-guide --skill '*' -a claude-code -a codex -g -y
 ```
 
 ### Add Codex Plugins
 
-```bash
-npx @ansarullahanas/cc-guide add-plugin proof-driven-verification
-npx @ansarullahanas/cc-guide add-plugin sprint-protocol
-```
-
-If the npm package version lags behind `main`, install directly from GitHub instead:
+Install the richer Codex plugin version when you want the Codex plugin card, phase skills, and marketplace metadata:
 
 ```bash
 npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin proof-driven-verification
@@ -60,15 +69,15 @@ npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin sprint-protocol
 Install once into your home Codex plugin catalog so it is available from any project on that computer:
 
 ```bash
-npx @ansarullahanas/cc-guide add-plugin proof-driven-verification --global
-npx @ansarullahanas/cc-guide add-plugin sprint-protocol --global
-```
-
-GitHub fallback for global install:
-
-```bash
 npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin proof-driven-verification --global
 npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin sprint-protocol --global
+```
+
+After the npm package is published at `1.1.0` or newer, the equivalent npm form is:
+
+```bash
+npx @ansarullahanas/cc-guide add-plugin proof-driven-verification --global
+npx @ansarullahanas/cc-guide add-plugin sprint-protocol --global
 ```
 
 This writes plugins into `~/plugins/<plugin-name>` and updates `~/.agents/plugins/marketplace.json`.
@@ -80,22 +89,22 @@ Then ask Codex for a phase directly:
 Use Sprint Protocol to research and plan this work.
 Use sprint-stories to write stories for sprint <name>.
 Use sprint-execute to implement sprint <name>.
-Use sprint-verify to verify sprint <name> and prepare the PR.
+Use sprint-verify to run QA/evidence verification for sprint <name> and prepare the PR when needed.
 ```
 
-Optional one-command install plus prerequisite setup:
+Optional one-command install plus host-level prerequisite setup. This may install or check workstation tools such as Agent Browser, ffmpeg/ffprobe, browser payloads, and the optional Deepgram CLI:
 
 ```bash
-npx @ansarullahanas/cc-guide add-plugin proof-driven-verification --setup
+npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin proof-driven-verification --setup
 ```
 
-Run ProofOps in one command from any repo:
+Run ProofOps in one command from any repo. If the plugin is not already installed in that repo, the command installs the local plugin copy first so Codex can load the ProofOps skills:
 
 ```bash
-npx @ansarullahanas/cc-guide proofops --task "Verify this branch before I merge it"
+npx github:AnsarUllahAnasZ360/cc-guide#main proofops --task "Verify this branch before I merge it"
 ```
 
-Run the doctor in any repo:
+Run the doctor after installing the plugin in a repo:
 
 ```bash
 node plugins/proof-driven-verification/scripts/doctor.mjs
@@ -105,11 +114,6 @@ Store Deepgram securely on macOS without committing it:
 
 ```bash
 DEEPGRAM_API_KEY=... node plugins/proof-driven-verification/scripts/deepgram-key.mjs set
-```
-
-**Via skills.sh:**
-```bash
-npx skills add AnsarUllahAnasZ360/cc-guide
 ```
 
 ### Use the Skills
@@ -318,7 +322,7 @@ cc-guide/
 │   └── prompt.hbs            # Ralph TUI prompt template
 │
 └── bin/
-    └── add-skill.js          # npx cc-guide add-skill / add-plugin
+    └── add-skill.js          # npx @ansarullahanas/cc-guide add-skill / add-plugin
 ```
 
 ---

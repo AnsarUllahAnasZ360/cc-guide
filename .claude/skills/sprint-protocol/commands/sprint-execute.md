@@ -1,59 +1,57 @@
 ---
-description: Start Phase 4 of a sprint — execute all stories with worker teammates
+description: Phase 4 — execute approved sprint with configurable concurrency, dependency mapping, quality closure, and one sprint commit
 ---
 
 # /sprint-execute — Phase 4: Execution
 
-You are the **Team Lead** for Phase 4 of the AgentX Sprint Protocol.
-
-## Your Role
-Pure orchestrator. You spawn workers, track progress, and manage the task list. You NEVER read source code, write code, or implement fixes yourself.
+You are the Sprint Protocol master agent for Phase 4.
 
 ## Setup
 
-1. Read `skills/sprint-protocol/SKILL.md` for protocol overview
-2. Read `skills/sprint-protocol/references/phase-4-execution.md` for the full Phase 4 workflow
-3. Read `skills/sprint-protocol/references/worker-guide.md` to understand worker expectations
+Read:
 
-## Sprint Context
+1. `.claude/skills/sprint-protocol/SKILL.md`
+2. `.claude/skills/sprint-protocol/references/phase-4-execution.md`
+3. `.claude/skills/sprint-protocol/references/worker-guide.md`
+4. sprint `README.md`, all stories, and `verification-checklist.md`
 
-**Sprint name:** $ARGUMENTS
+## Input
 
-**Prerequisites:** All stories reviewed, `sprints/<name>/verification-checklist.md` exists.
+`$ARGUMENTS` should be the sprint folder path.
+
+## Required Questions
+
+Before dispatching implementation workers, ask unless already specified:
+
+1. Should we stay on the current branch or create/switch to a sprint branch?
+2. How many stories should run at once: 1, 2, 3, or 4?
 
 ## Rules
 
-1. **TaskCreate FIRST** — map every story to a task before launching any worker
-2. **Teams ONLY** — use TeamCreate + Task with team_name. NO subagents. NO background agents.
-3. **Max 2 concurrent workers** — 2 workers running simultaneously, no total cap. Default to 1 for dependent stories.
-4. **One commit per story** — each worker creates exactly one commit
-5. **Workers create task lists** — workers MUST create task lists before implementing
-6. **Workers follow workflow** — workers follow the complete workflow in `references/worker-guide.md`
-7. **progress.md is memory** — workers read ALL of it before starting, update after completing
-8. **Failure escalation** — if 3+ stories fail in the same area, STOP and notify user
-9. **Never implement** — you are a manager, not a developer. Every action goes to a worker.
-10. **Write sprint-completion.md** — after all stories, summarize results
-11. **Commit artifacts** — commit progress.md and sprint-completion.md
-
-## Identity Rules
-
-You are a PROJECT MANAGER. Your tools are:
-- TeamCreate, Task, SendMessage, TaskCreate, TaskUpdate, TaskList, TeamDelete
-- Read (ONLY for sprint artifacts — README, progress.md, stories, completion)
-
-You do NOT:
-- Read source code or test files
-- Write code or make implementation decisions
-- Run typecheck, lint, or tests
-- Use Bash, Edit, Write, or Grep for anything outside the sprint folder
-- Implement "quick fixes" yourself
+1. The lead maps dependencies before spawning workers.
+2. The requested concurrency is a maximum. Lower it when dependencies or conflict risk require.
+3. Workers load required skills and run feature-level tests.
+4. Workers update `progress.md`.
+5. Workers do not create final story commits unless the user changes the commit strategy.
+6. Run quality closure before final commit.
+7. Write `sprint-completion.md`.
+8. Create one sprint commit by default.
+9. Do not leave teammates running at the end.
 
 ## Deliverables
 
-- Code changes (via worker commits)
-- `sprints/<name>/progress.md` — memory file updated by each worker
-- `sprints/<name>/sprint-completion.md` — final summary
+- implemented sprint changes
+- `progress.md`
+- `sprint-completion.md`
+- one sprint commit
 
-## Next Phase
+## Report To User
 
-After Phase 4, tell the user to run `/sprint-verify <name>` for Phase 5.
+Summarize:
+
+- branch used
+- concurrency used
+- stories completed/deferred
+- tests and review run
+- sprint commit hash
+- readiness for verification

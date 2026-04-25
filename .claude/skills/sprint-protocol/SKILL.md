@@ -1,174 +1,194 @@
 ---
 name: sprint-protocol
-description: AgentX Sprint Protocol (ASP) — 5-phase lifecycle for multi-agent sprint execution. Use when the user says "plan a sprint", "research for a sprint", "write stories", "review the sprint", "execute the sprint", "verify the sprint", or any sprint-related request. Covers five phases: Research & Plan, Story Writing, Review & Audit, Execution, and Verification.
+description: Use when turning founder requirements, research packets, plans, specs, and system designs into one or more independently executable Claude/Cloud Code implementation sprints with story writing, review, execution, optional verification, and sprint-level commits.
 ---
 
 # AgentX Sprint Protocol
 
-5-phase lifecycle for multi-agent sprint execution. Plan, write, review, execute, and verify — all through Claude Code teams.
+Use this skill when the user wants to turn a product or engineering goal into a controlled sprint delivery process. The user may arrive with a raw brain dump, or they may already have a `Research.md`, `Plan.md`, `Spec.md`, `System-Design.md`, `Requirements.md`, PRD, architecture packet, or prior chat summary. The protocol must handle both paths.
 
-## Three Invariants
+The goal is not to create busywork. The goal is to decide what should be built, whether it fits in one sprint, how to divide it if it does not, how to write executable stories, how to run multiple workers safely, when to run a dedicated verification pass, and how to preserve traceability through sprint artifacts and commits.
 
-1. **TaskCreate before anything else.** Every agent — lead and worker — creates a task list before doing any work. The task list is your memory. It survives compaction. Without it, you drift.
-2. **Delegate everything via teams.** The lead researches nothing, implements nothing, verifies nothing. Every action goes through a teammate spawned via `Task` with `team_name`. NO subagents. NO background agents. Only full teammates.
-3. **Fewer, bigger, well-packed stories.** A sprint has 4-8 stories (typical) or up to 12-15 (large feature). If you have 20+ stories, you have broken things down too far. Justify your story count.
+## Core Invariants
 
-## 5-Phase Lifecycle
+1. **Founder intent is the source of truth.** The protocol starts by understanding what the founder wants shipped and why. Existing research or design docs must be reviewed for gaps, inconsistencies, missing decisions, and scope risk before sprint folders are created.
+2. **Plan before execution.** Every phase starts with a task list. The lead keeps an explicit queue, dependency map, blocker list, and approval status.
+3. **One canonical memory surface.** Sprint state lives in files under the sprint folder, not in chat memory. Long-running work must be resumable from artifacts alone.
+4. **Lead orchestrates, workers implement.** The lead does not absorb the whole codebase. The lead reads sprint artifacts, high-level diffs, reports, and status. Codebase research, implementation, code review, and verification are delegated to teammates.
+5. **Feature-driven sprinting.** A sprint must deliver one or more concrete features, fixes, or quality checkpoints. Sprints are ordered so each one creates usable foundation for the next.
+6. **Story count is earned, not fixed.** Do not force a sprint into an artificial number of stories. Create as many stories as the feature requires, then challenge the set for over-splitting, missing work, dependency problems, and testability.
+7. **Every story declares required skills and tests.** Each story must tell the worker which domain skills/tools to load and which feature-specific tests prove completion.
+8. **Execution concurrency is configurable.** Before Phase 4 execution, ask the user how many stories to run at once: 1, 2, 3, or 4. Respect dependency and conflict risk even if the user chooses a higher number.
+9. **One sprint, one delivery commit.** Workers normally do not create final commits per story. The lead verifies, reviews, stages intentionally, and creates one clean sprint commit unless the user asks for a different commit strategy.
+10. **Verification is an explicit QA mode.** Every executed sprint produces `progress.md`, `verification-checklist.md`, and `sprint-completion.md`. `verification-report.md` and browser/video evidence are created when the user runs Phase 5 verification or when a checkpoint sprint explicitly performs QA work.
 
-| Phase | Name | Command | Input | Output | Reference |
-|-------|------|---------|-------|--------|-----------|
-| 1 | Research & Plan | `/sprint-research` | User brain dump | research.md, plan.md | `references/phase-1-research.md` |
-| 2 | Story Writing | `/sprint-stories` | research.md, plan.md | stories/, README.md | `references/phase-2-stories.md` |
-| 3 | Review & Audit | `/sprint-review` | stories/, README.md | Updated stories, verification-checklist.md | `references/phase-3-review.md` |
-| 4 | Execution | `/sprint-execute` | stories/, README.md | Code, progress.md, sprint-completion.md | `references/phase-4-execution.md` |
-| 5 | Verification | `/sprint-verify` | All sprint artifacts | Fixes, verification-report.md, PR | `references/phase-5-verification.md` |
+## Sprint Versus Epic
 
-**Phase 4 concurrency:** 2 workers running simultaneously (no total cap — spawn as many as needed, only 2 active at once). Workers pick up stories from the queue as they finish.
+A **sprint** is an executable delivery unit. It has a folder, stories, a progress ledger, a verification checklist, a completion report, and normally one sprint-level commit. A sprint should deliver one or more concrete features, fixes, foundations, or quality checkpoints that can be reviewed and carried forward.
 
-## Multi-Agent Philosophy
+An **epic** is only a scope signal. It means the founder's input is too large, risky, or sequentially dependent to execute as one sprint. The protocol should not create a separate epic operating system by default. Instead, Phase 1 distributes the scope into independently executable sprint folders, each with its own `research.md` and `plan.md`.
 
-Teams are mandatory. Every phase uses `TeamCreate` + `Task` with `team_name` to spawn teammates.
+Use the word epic only when explaining size: "this is epic-sized, so I recommend five sprints." Do not require a separate intake-review, roadmap, checkpoint-plan, decisions bundle, or parent planning folder unless the user explicitly asks for a portfolio-level planning artifact.
 
-**Lead agent rules:**
-- Pure orchestrator. Never reads source code. Never implements.
-- Only uses: TeamCreate, Task, SendMessage, TaskCreate/Update/List, TeamDelete
-- Reads ONLY sprint artifacts (README, progress.md, stories)
-- Delegates ALL research and implementation to teammates
+## Two Intake Modes
 
-**Worker agent rules:**
-- Implements. Does NOT orchestrate or spawn other agents.
-- MUST create a task list (TaskCreate) before any work
-- Loads relevant skills as specified in story files (via ToolSearch / skill discovery)
-- Follows the story workflow: research, think, plan, implement, test, review, commit
-- See `references/worker-guide.md` for complete instructions
+### Mode A: Raw Founder Brain Dump
 
-**What we NEVER use:**
-- `Task` without `team_name` (creates subagents — forbidden)
-- `run_in_background: true` on Task calls (creates background agents — forbidden)
-- `subagent_type: "Explore"` for implementation work
+Use when the user arrives with ideas, goals, complaints, screenshots, or loose requirements.
 
-## Story Sizing — The Central Rule
+The research phase performs real discovery:
 
-A story is a complete, deployable unit of work. NOT a single file change. NOT one endpoint. The whole feature or fix, end to end.
+- interview the user only where missing context would make the sprint unsafe or untestable
+- identify research shards
+- delegate codebase and product research
+- synthesize `research.md`
+- create `plan.md`
+- recommend whether the work fits one sprint or needs a multi-sprint distribution
 
-| Constraint | Value | Rationale |
-|-----------|-------|-----------|
-| Stories per sprint | **4-8** (typical), **12-15** max | Each story start costs ~20K tokens in context setup. Fewer stories = less overhead, more implementation time. |
-| Files per story | **10-30** | The agent handles 30 files fine. It loses track above 40. |
-| Lines changed per story | **500-2000** | The agent can produce 2000 lines in one session. Below 500 is wasteful overhead. |
-| Tasks per story | **5-12** | Each task is a substantial deliverable: a complete component, a full API endpoint with tests, an entire schema migration. |
-| Agent time per story | **20-30 min** | Well-packed stories keep the agent productive for a full session. Under 20 min means too much overhead relative to work. |
+### Mode B: Baked Research Or Plan Packet
 
-### Packing Rules
+Use when the user already has substantial planning material: `Research.md`, `Plan.md`, `Spec.md`, `System-Design.md`, `Requirements.md`, PRD, architecture notes, or prior chat summaries.
 
-If you can describe two stories in one sentence ("add the client CRM with list, detail, and edit views"), they should be ONE story. Only split when the combined work genuinely exceeds 2000 lines or 30 files.
+The research phase becomes a planning review and sprint distribution phase:
 
-- **One feature = one story.** "Add client CRM with list, detail, edit, and create" is one story if it fits.
-- **Bug packing:** Group 3-5 related bugs into a single story. "Fix navigation bugs" with 5 specific bugs is ONE story, not five.
-- **Tests ship with features.** Never create a "write tests" story. Tests are part of the feature story.
-- **Refactors:** One refactoring goal = one story. "Migrate all sidebar components to new layout system" is one story.
+- read the supplied packet fully
+- identify contradictions, missing decisions, hidden dependencies, and untestable acceptance criteria
+- ask the user targeted questions only where the plan cannot be safely converted into sprints
+- decide whether the scope fits in one sprint
+- if it fits, create the sprint `research.md` and `plan.md`
+- if it does not fit, create a multi-sprint distribution first, then create named sprint folders after user approval
 
-### When to Split
+## Phase Map
 
-Split ONLY when:
-- Combined scope genuinely exceeds 30 files or 2000 lines
-- The work has hard sequential dependencies where later work CANNOT start until earlier work is deployed
-- The domains are completely unrelated (e.g., billing system + whiteboard editor)
+| Phase | Name | Main question | Output |
+| --- | --- | --- | --- |
+| 1 | Research And Planning | What is being built, and does it fit in one sprint? | `research.md`, `plan.md`, or a multi-sprint distribution with independent sprint folders |
+| 2 | Story Writing | What exact implementation stories should workers execute? | `README.md`, `stories/STORY-NNN.md` |
+| 3 | Review And Audit | Are stories complete, testable, correctly sized, and aligned with founder intent? | updated stories, `verification-checklist.md` |
+| 4 | Execution | Which stories can safely run now, with what concurrency and branch strategy? | code changes, `progress.md`, `sprint-completion.md`, one sprint commit |
+| 5 | Verification | Did the sprint actually work, and what evidence proves it? | fixes, `verification-report.md`, evidence, PR handoff when explicitly requested |
+| C | Checkpoint Sprint | After several implementation sprints, does the integrated product still hold together? | code review, browser verification, integration fixes, `sprint-completion.md`, optional `verification-report.md` |
 
-### When NOT to Split
+## Commands
 
-Keep together when:
-- Schema + backend + frontend for one feature (vertical slice)
-- Feature + its tests (tests are part of the feature)
-- Related bugs in the same area (pack them)
-- A component + its styling (same story)
-- The work shares a domain or can be described in one sentence
+Claude Code slash commands remain the primary command surface:
 
-### Anti-pattern: Too Many Stories
+- `/sprint-research <topic-or-folder>` — Phase 1: research, planning review, sprint sizing, or multi-sprint distribution
+- `/sprint-stories <sprint-folder>` — Phase 2: write implementation stories
+- `/sprint-review <sprint-folder>` — Phase 3: founder review, story audit, verification checklist
+- `/sprint-execute <sprint-folder>` — Phase 4: configurable multi-worker implementation
+- `/sprint-verify <sprint-folder>` — Phase 5: optional QA verification, evidence capture, fixes, and PR handoff
 
-If your sprint has 30 stories when 10 would do, you have broken things down too far. Every story has ~20K tokens of overhead (reading CLAUDE.md, sprint README, progress.md, story file, discovering skills, creating task list). That's 600K tokens of overhead for 30 stories vs 200K for 10.
+When the user gives a folder path, use that folder directly. Do not assume a parent planning layout. Multi-sprint work should normally be represented by multiple independent sprint folders, usually with a shared initiative prefix.
 
-**Justify your story count.** If challenged, you should be able to explain why each story cannot be merged with another.
+## Artifact Layout
 
-## Sprint Folder Structure
+### Sprint Folder
 
-All sprint artifacts live in `sprints/<name>/` at the repo root:
-
-```
-sprints/<name>/
-├── research.md                   # Phase 1 output
-├── plan.md                       # Phase 1 output
-├── README.md                     # Phase 2 output (sprint overview)
-├── stories/
-│   ├── STORY-001.md
-│   ├── STORY-002.md
-│   └── ...
-├── verification-checklist.md     # Phase 3 output
-├── progress.md                   # Phase 4 (memory file, append-only)
-├── sprint-completion.md          # Phase 4 output
-└── verification-report.md        # Phase 5 output
+```text
+sprints/<sprint-name>/
+  research.md
+  plan.md
+  README.md
+  stories/
+    STORY-001.md
+  verification-checklist.md
+  progress.md
+  sprint-completion.md
 ```
 
-**Branch:** `sprint/<name>` — created at Phase 1 start. All artifacts committed throughout all phases.
+### Verification Mode Adds
 
-## Compaction Survival
+```text
+sprints/<sprint-name>/
+  verification-report.md
+  evidence/                  # only when screenshots, recordings, logs, or other QA proof are produced
+```
 
-Context compaction WILL happen during sprints. When it does:
+### Multi-Sprint Distribution
 
-1. **TaskList** — Your task list survives compaction. Read it FIRST.
-2. **README.md** — Re-read the sprint README immediately.
-3. **progress.md** — Read for current state and insights.
-4. **Continue** from where your task list says you are.
+Use independent sprint folders. Each folder must be self-contained enough to plan, write, execute, and verify later without needing the original chat.
 
-**NEVER work from memory.** If you cannot point to a file or task list entry, you do not know it.
+```text
+sprints/
+  <initiative>-01-<feature-name>/
+    research.md
+    plan.md
+  <initiative>-02-<feature-name>/
+    research.md
+    plan.md
+  <initiative>-checkpoint-03-<theme>/
+    research.md
+    plan.md
+```
 
-## Tool Reference
+Checkpoint sprints are first-class sprints. They are not filler. Their job is to inspect what previous sprints actually delivered, run code review, run browser/integration testing, repair integration problems, and realign the implementation with the overall initiative goal.
 
-Every action in this protocol maps to a Claude Code tool:
+## Required References
 
-| Action | Tool | Required Parameters |
-|--------|------|-------------------|
-| Create team | `TeamCreate` | `team_name` |
-| Spawn teammate | `Task` | `team_name`, `name`, `model`, `subagent_type`, `prompt` |
-| Send message | `SendMessage` | `type`, `recipient`, `content` |
-| Shut down teammate | `SendMessage` | `type: "shutdown_request"`, `recipient` |
-| Clean up team | `TeamDelete` | (none) |
-| Create task | `TaskCreate` | `subject`, `description` |
-| Update task | `TaskUpdate` | `taskId`, `status` |
-| Read task list | `TaskList` | (none) |
+Read only the references needed for the current phase:
 
-## Platform Notes
+- Phase 1: `references/phase-1-research.md`
+- Phase 2: `references/phase-2-stories.md`
+- Phase 3: `references/phase-3-review.md`
+- Phase 4: `references/phase-4-execution.md`
+- Phase 5: `references/phase-5-verification.md`
+- Workers: `references/worker-guide.md`
+- Story format: `references/story-template.md`
+- Artifact formats: `references/templates.md`
 
-### Claude Code (Primary)
-Full team support. All phases run natively. This protocol is designed for Claude Code first.
+## Difficulty And Model Routing
 
-### Codex Multi-Agent
-- Use worker/explorer agent types instead of teammate naming
-- Sandbox policy requires explicit file access grants
-- Parallel spawning supported — adjust max workers accordingly
-- See Phase 4 reference for Codex-specific notes
+Every sprint and story must carry a difficulty level:
 
-### Cursor Agent (Primary for Phase 5)
-- Cursor Agent is the PRIMARY platform for Phase 5 (Verification)
-- Video evidence is mandatory during verification — every check must produce visual proof
-- See `.cursor/rules/sprint-protocol.mdc` for the expanded Cursor-specific workflow
-- Browser verification via Cursor's built-in tools
-- Single-agent verification (no teams in Cursor)
+| Difficulty | Use when | Model routing |
+| --- | --- | --- |
+| Hard | architecture, cross-system changes, security, complex state, AI agents, migrations, high ambiguity | best available model, highest reasoning effort |
+| Medium | multi-file implementation with known patterns and moderate integration risk | strong model, moderate reasoning effort |
+| Simple | mechanical, localized, well-specified changes with low blast radius | smaller/cheaper model is acceptable |
 
-## Anti-Patterns
+The lead chooses worker model strength from difficulty, risk, and dependency position. Do not under-route a story because it looks small if it sits on a critical foundation.
 
-| Pattern | Problem | Fix |
-|---------|---------|-----|
-| Using subagents (Task without team_name) | No coordination, no shared memory | Always use `Task` with `team_name` |
-| Background agents (run_in_background) | Uncontrolled, can't communicate | Never use background agents |
-| Lead reading source code | Fills context with code, loses orchestration state | Delegate ALL research to teammates |
-| Working from memory after compaction | Hallucinated state, missed work | TaskList, README, progress.md, continue |
-| 20+ stories in a sprint | Massive token overhead | Pack more work per story (4-8 typical) |
-| One-file stories | Overhead dwarfs implementation | Pack related changes together |
-| Splitting by layer (horizontal) | Non-functional intermediate states | Vertical slices through all layers |
-| Skipping TaskCreate | Drift, incomplete work, no compaction recovery | Task list is ALWAYS first action |
-| Browser verification during execution (Phase 4) | Slows workers, unreliable mid-implementation | All browser verification in Phase 5 only |
-| Loose, granular stories | 30 stories when 10 would do | Justify story count, pack aggressively |
-| Lead implementing "small fixes" | Scope creep, role violation | Every fix goes to a teammate |
-| Ignoring unrelated test failures | Broken tests accumulate, CI rots | Workers must fix them constructively, not skip them |
-| Skipping video evidence in verification | No proof that features actually work | Video evidence is mandatory in Phase 5, not optional |
+## Skill Routing Rules
+
+Every story must include a mandatory **Required Skills And Tools** section. The story writer must choose skills based on the work, not on habit.
+
+Common routing examples:
+
+- Frontend/UI: frontend design skill, React best practices, Next.js best practices, shadcn/ui skill, accessibility or visual verification skills, and any project-specific design system skill.
+- Backend/API/data: stack-specific skills such as Supabase, Convex, Laravel, FastAPI, database/migration, auth, permissions, queue, or API testing skills.
+- AI product work: AI SDK, AI Elements, LiveKit agents, LangGraph/Deep Agents, memory, orchestration, tool-calling, evals, or observability skills as applicable.
+- Verification: Agent Browser CLI in Claude/Cloud Code, Browser Use in Codex, code review skills, framework test tooling, security review, and any project verification plugin available.
+
+If a required skill is missing, the story should say how the worker should discover it with skill/tool search and what fallback standard applies.
+
+## Branch And Commit Policy
+
+Phase 1 may recommend a branch named `sprint/<sprint-name>` or a shared initiative branch, but execution must confirm the branch strategy with the user before changing branches.
+
+In Phase 4, ask:
+
+1. Should we stay on the current branch or create/switch to a sprint branch?
+2. How many stories should run at once: 1, 2, 3, or 4?
+
+Default commit policy:
+
+- workers implement and update `progress.md`
+- workers do not create final story commits unless explicitly instructed
+- lead performs final review and testing
+- lead creates one sprint commit with a clear message and detailed body
+- verification fixes may be included in the sprint commit if discovered before commit, or in one follow-up verification commit if discovered during explicit Phase 5 QA
+
+## Stop Conditions
+
+Stop and ask the user when:
+
+- the provided research/spec packet contradicts itself in a way that changes scope
+- acceptance criteria are not testable
+- sprint sizing shows the work cannot fit one sprint and a multi-sprint distribution needs approval
+- branch strategy is unclear and changing branches would risk user work
+- credentials, seed data, or services are required for verification but unavailable
+- three or more workers hit the same blocker
+- continuing would overwrite unrelated user changes
+
+Otherwise, document assumptions in the relevant sprint artifact and continue.

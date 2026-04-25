@@ -1,346 +1,350 @@
 # Sprint Artifact Templates
 
-Templates for all sprint artifacts produced during the AgentX Sprint Protocol lifecycle.
+Use these templates as the standard artifact contract for Claude/Cloud Code Sprint Protocol and the Codex plugin.
 
----
+## Sprint Folder Contract
 
-## README.md (Phase 2 Output)
+Every executable sprint folder uses the same contract:
+
+```text
+sprints/<sprint-name>/
+  research.md
+  plan.md
+  README.md
+  stories/
+    STORY-001.md
+  verification-checklist.md
+  progress.md
+  sprint-completion.md
+```
+
+`verification-report.md` and `evidence/` are created later only when Phase 5 verification is run or when a checkpoint sprint explicitly performs QA evidence work.
+
+For multi-sprint work, create independent sprint folders:
+
+```text
+sprints/<initiative>-01-<feature>/
+sprints/<initiative>-02-<feature>/
+sprints/<initiative>-checkpoint-03-<theme>/
+```
+
+Each folder must stand alone. A future agent should be able to open one sprint folder and understand what to do without reading the original chat.
+
+## Optional Multi-Sprint Distribution
+
+Create this only when the user needs a durable overview before approving several sprint folders.
+
+```markdown
+# <Initiative> - Sprint Distribution
+
+## Source Inputs
+- <raw founder notes, file paths, docs, chats, issues, PRDs>
+
+## Why This Needs Multiple Sprints
+<Explain scope, dependency order, verification burden, and risk.>
+
+## Sprint Sequence
+| Order | Sprint Folder | Type | Goal | Feature Deliverables | Difficulty | Depends On | Verification/Checkpoint |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 01 | `sprints/<initiative>-01-<feature>` | implementation | <goal> | <deliverables> | hard | none | <handoff> |
+| 02 | `sprints/<initiative>-02-<feature>` | implementation | <goal> | <deliverables> | medium | 01 | <handoff> |
+| 03 | `sprints/<initiative>-checkpoint-03-<theme>` | checkpoint | <goal> | code review + browser QA | hard | 01-02 | Phase 5 recommended |
+
+## Dependency Logic
+- <why this order makes sense>
+
+## Checkpoint Strategy
+- <where checkpoints happen and why>
+
+## Founder Decisions
+- <decision needed or approved>
+```
+
+## Sprint `research.md`
+
+```markdown
+# Sprint: <name> - Research
+
+## Source Inputs
+- <raw founder notes, file paths, docs, chats, issues, PRDs>
+
+## Intake Mode
+Raw intake | Baked packet review
+
+## Objective
+<What the founder wants built and why.>
+
+## Multi-Sprint Context
+<If this is one sprint in a larger initiative, state the previous sprint, next sprint, and dependency position. If not applicable, say N/A.>
+
+## Findings
+
+### <Area>
+**Current state:** <summary>
+
+**Evidence:**
+- `path/to/file.ts:line` - <finding>
+
+**Patterns:** <local conventions>
+**Gaps:** <missing pieces>
+**Risks:** <risk and mitigation>
+**Sprint implications:** <what story writers need to know>
+
+## Gaps And Questions
+- <question or none>
+
+## One Sprint Fit Assessment
+<Why this specific sprint scope fits into one sprint. If the original input was larger, explain how this sprint was bounded.>
+```
+
+## Sprint `plan.md`
+
+```markdown
+# Sprint: <name> - Plan
+
+## Goal
+<1-2 sentences.>
+
+## Scope
+
+### In
+- <included>
+
+### Out
+- <excluded>
+
+## Position In Larger Initiative
+- previous sprint: <name or none>
+- this sprint delivers: <feature/outcome>
+- next sprint: <name or none>
+- checkpoint after this sprint: yes/no and why
+
+## Why This Fits One Sprint
+<Explain the scope boundary, dependency shape, and verification burden.>
+
+## Proposed Stories
+| ID | Title | Type | Difficulty | Purpose | Dependencies | Required Skills | Targeted Tests |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| STORY-001 | <title> | feature | hard | <why> | none | <skills> | <commands> |
+
+## Story Count Rationale
+<Why this exact set of stories is enough and not artificially split.>
+
+## Execution Order
+- STORY-001 first because <reason>.
+- STORY-002 can run with STORY-003 because <reason>.
+
+## Recommended Concurrency
+<1-4, with rationale. Final choice is confirmed during Phase 4.>
+
+## Skill Strategy
+- <frontend/backend/AI/verification skill notes>
+
+## Testing Strategy
+- per-story targeted tests
+- red/green proof for testable changes
+- sprint-level checks before commit
+- browser/API verification in Phase 5 when user requests QA
+
+## Difficulty And Model Routing
+- Hard stories: <ids>
+- Medium stories: <ids>
+- Simple stories: <ids>
+
+## Branch And Commit Assumptions
+- branch: <current or sprint/name>
+- commit: one sprint commit by default
+
+## Risks And Tradeoffs
+- <risk and mitigation>
+```
+
+## Sprint `README.md`
 
 ```markdown
 # Sprint: <name>
 
-## Sprint Goal
-[1-2 sentences. The single most important outcome.]
+## Goal
+<single most important outcome>
 
-## Problem Statement
-[What problems does this sprint address? Why now?]
+## Type
+implementation | checkpoint
 
 ## Scope
 
 ### In Scope
-- [Bullet list of features, fixes, changes]
+- <item>
 
-### Out of Scope
-- [What is NOT included]
+### Out Of Scope
+- <item>
 
-## Stories Overview
+## Stories
+| ID | Title | Type | Difficulty | Status | Dependencies | Required Skills | Targeted Tests |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| STORY-001 | <title> | feature | hard | pending | none | <skills> | <commands> |
 
-| ID | Title | Tier | Status |
-|----|-------|------|--------|
-| STORY-001 | [Title] | complex | pending |
-| STORY-002 | [Title] | simple | pending |
-
-## Dependencies
-
-- STORY-001 blocks STORY-003
-- [List all cross-story dependencies]
+## Execution Guidance
+- recommended concurrency: <1-4>
+- branch recommendation: <branch>
+- commit policy: one sprint commit
+- dependency order: <summary>
 
 ## Success Criteria
-1. [Measurable outcome]
-2. All stories pass typecheck and lint
-3. All tests pass
-4. No regressions
+1. <measurable outcome>
+2. Feature-level tests pass.
+3. Sprint-level checks pass or documented blockers exist.
+4. `sprint-completion.md` clearly hands off what Phase 5 should verify if QA is requested.
 ```
 
-### Notes
-- **Tier**: `complex` (Opus 4.6) or `simple` (Sonnet 4.6). Default to `complex`.
-- Target 4-8 stories. Maximum 15.
-- No phase gates in README -- they are derived during review (Phase 3).
-
----
-
-## research.md (Phase 1 Output)
+## `verification-checklist.md`
 
 ```markdown
-# Sprint: <name> -- Research
+# Sprint: <name> - Verification Checklist
 
-## Overview
-[2-3 sentences. What was investigated and why.]
+## Source Documents
+- README.md
+- stories/STORY-*.md
+- plan.md
+- progress.md
+- sprint-completion.md
 
-## Feature Areas
+## Global Checks Before Final Verdict
+- [ ] `<typecheck command>` - expected: zero sprint-caused errors
+- [ ] `<lint command>` - expected: zero sprint-caused errors
+- [ ] `<targeted feature test suite>` - expected: pass
+- [ ] `<build command>` - expected: build succeeds when applicable
 
-### [Area 1 Name]
-**Current state:** [What exists today]
-**Files:**
-- `path/to/file.ts:line` -- [What it does]
-- `path/to/other.ts:line` -- [What it does]
+## Per-Story Checks
 
-**Patterns:** [How similar things are done in the codebase]
-**Gaps:** [What's missing or broken]
+### STORY-001: <title>
+- [ ] Feature-level tests pass: `<command>`
+- [ ] Acceptance criterion: <criterion> - verify by <command/browser/API flow>
+- [ ] Phase 5 evidence to collect if requested: <screenshot/recording/log path or N/A>
 
-### [Area 2 Name]
-[Same structure]
+## Code Review Checks
+- [ ] Spec compliance review completed
+- [ ] Code quality review completed
+- [ ] Security/permissions reviewed where relevant
+- [ ] No unrelated files changed
 
-## Schema State
-[Relevant database/schema fields, indexes, relationships]
+## Browser/API Checks
+- [ ] <route or workflow> - expected: <result> - Phase 5 evidence target: <path or N/A>
 
-## Cross-Cutting Concerns
-- [Shared utilities, common patterns, auth/permissions]
-- [CSS/styling conventions]
-- [Testing patterns]
-
-## Open Questions
-- [Unresolved items for user clarification]
-- [Technical decisions that need input]
+## Environment
+- <services, credentials, seed data, local URL>
 ```
 
----
-
-## plan.md (Phase 1 Output)
+## `progress.md`
 
 ```markdown
-# Sprint: <name> -- Plan
+# Sprint: <name> - Progress
 
-## Sprint Goal
-[1-2 sentences]
+> Append-only worker ledger. Every worker reads all relevant entries before editing.
 
-## Scope
+---
 
-### In Scope
-- [Feature/fix 1]
-- [Feature/fix 2]
+## STORY-001 - <title>
+**Status:** completed | partial | blocked
+**Worker:** <worker name>
+**Difficulty:** hard | medium | simple
+**Required Skills Used:** <skills/tools>
+**Commit:** none | <hash if instructed>
+**Files:** <top files changed>
 
-### Out of Scope
-- [Explicitly excluded items]
+**Summary:** <1-2 sentences.>
 
-## Proposed Stories
+**Feature Tests:**
+- Red: `<command>` - PASS/FAIL/NOT APPLICABLE
+- Green: `<command>` - PASS/FAIL
+- `<command>` - PASS/FAIL
 
-| ID | Title | Brief | Tier | Research Items |
-|----|-------|-------|------|----------------|
-| STORY-001 | [Verb-first title] | [1 sentence] | complex | [Files/areas to investigate] |
-| STORY-002 | [Verb-first title] | [1 sentence] | simple | [Files/areas to investigate] |
+**Other Checks:**
+- `<command>` - PASS/FAIL/NOT RUN
 
-### Story Count Justification
-[Why this number of stories? Why can't they be merged further? Why shouldn't they be split?
-Also address: does the count reflect good packing -- or could stories be combined without overloading?]
+**Deviations From Story:**
+- <none or explanation>
 
-### Story Order
-[Explain the execution sequence and reasoning.]
-- STORY-001 goes first because: [reason -- e.g., sets up shared schema other stories depend on]
-- STORY-002 follows because: [reason -- e.g., builds on types introduced by STORY-001]
-- STORY-003 can run in parallel with STORY-002 because: [reason -- no shared files]
-- [Continue for all stories]
-
-### Packing Strategy
-[Explain what was merged into single stories vs separated and why.]
-- Merged [X and Y] into STORY-001 because: [reason -- same files, tight coupling, small scope individually]
-- Kept [A] separate from [B] because: [reason -- different tiers, different feature areas, risk isolation]
-- [Justify any story that touches 5+ files -- is it truly cohesive or should it be split?]
-
-### Sprint Efficiency Assessment
-- [ ] No unnecessary stories -- every story maps to a sprint goal requirement
-- [ ] No over-distribution -- work is not spread across too many small stories that could be combined
-- [ ] No overloaded stories -- no single story carries disproportionate scope or risk
-- [ ] Tier assignments are justified -- complex stories genuinely need Opus 4.6
-- [Brief narrative: 1-2 sentences confirming the sprint is lean and well-balanced]
-
-## Dependencies
-- STORY-001 must complete before STORY-003 (shared schema)
-- [List all dependencies with reasons]
-
-## Complexity Estimates
-- Total files: ~[N]
-- Total lines changed: ~[N]
-- Estimated agent time: ~[N] hours
-
-## Phase Gates
-| Gate | After Story | Checks |
-|------|-------------|--------|
-| Gate 1 | STORY-NNN | typecheck, lint, tests |
-| Gate 2 | STORY-NNN | typecheck, lint, tests |
+**Insights For Next Worker:**
+- <pattern, gotcha, warning, or decision>
 ```
 
----
-
-## verification-checklist.md (Phase 3 Output)
+## `sprint-completion.md`
 
 ```markdown
-# Sprint: <name> -- Verification Checklist
+# Sprint: <name> - Completion Report
 
-> Used by Phase 5 (Verification) to validate all sprint work.
+**Sprint Type:** implementation | checkpoint
+**Branch:** <branch>
+**Commit:** <hash or pending>
+**Concurrency Used:** <1-4>
+**Completed:** <date/time>
 
-## Overall Sprint Checks
+## Planned Scope
+<From README and stories.>
 
-- [ ] `tsc --noEmit` (or project typecheck command) passes with zero errors
-- [ ] Lint passes with zero errors
-- [ ] `npm test` (or project test command) -- all tests pass
-- [ ] Build succeeds without errors
-- [ ] No console errors on main routes
+## Delivered Scope
+<What actually changed.>
 
-## Per-Story Verification
+## Story Results
+| Story | Status | Difficulty | Notes |
+| --- | --- | --- | --- |
+| STORY-001 | completed | hard | <notes> |
 
-### STORY-001: [Title]
+## Tests And Checks
+| Check | Result | Notes |
+| --- | --- | --- |
+| <command> | PASS/FAIL | <notes> |
 
-**Test commands:**
-- [ ] `npm test -- --grep "STORY-001 related tests"`
-- [ ] [Specific test command]
+## Quality Review
+- spec compliance: PASS/FAIL
+- code quality: PASS/FAIL
+- security/permissions: PASS/FAIL/N/A
+- unrelated files: PASS/FAIL
 
-**Pages/routes to verify:**
-- [ ] `/route/path` -- [Expected behavior]
-- [ ] `/another/route` -- [Expected behavior]
+## Known Issues Or Deferred Work
+- <issue or none>
 
-**Acceptance criteria checks:**
-- [ ] [Criterion 1 from story] -- [How to verify]
-- [ ] [Criterion 2 from story] -- [How to verify]
-
-### STORY-002: [Title]
-[Same structure]
-
-## Integration Checks
-- [ ] [Cross-story interaction 1]
-- [ ] [Cross-story interaction 2]
+## Verification Handoff
+- routes/workflows to verify
+- data assumptions
+- risky areas
+- evidence that Phase 5 should capture if QA is requested
 ```
 
----
+## `verification-report.md`
 
-## progress.md (Phase 4 -- Memory File)
-
-```markdown
-# Sprint: <name> -- Progress
-
-> **APPEND-ONLY.** Each worker appends at the bottom. Never edit previous entries.
-> Workers MUST read ALL entries before starting their story.
-> The "Insights for next worker" section is how workers share knowledge.
-
----
-```
-
-### Memory File Guidelines
-
-progress.md is the team's shared memory. It has no hard size limit.
-
-**Rules:**
-- Append-only -- never edit or delete previous entries
-- Workers MUST read ALL of it before starting (not just last 3 entries)
-- Workers MUST append an entry after completing their story
-- The "Insights for next worker" section is the most important part
-- Include commit hash so the lead can verify
-
-**Entry format:**
+Created by Phase 5 only.
 
 ```markdown
----
+# Sprint: <name> - Verification Report
 
-## [STORY-XXX] Short title
-**Status:** completed | blocked | partial
+**Verdict:** MERGE | NEEDS WORK | BLOCKED
+**Branch:** <branch>
 **Commit:** <hash>
-**Files:** path/a.ts, path/b.tsx (max 5, "and N more" if >5)
+**Verified:** <date/time>
 
-**Summary:** 1-2 sentences on what was accomplished.
+## Planned Versus Delivered
+<Compare README/stories with sprint-completion.md.>
 
-**Implemented:**
-- Bullet 1 (max 8 words)
-- Bullet 2
-- Bullet 3 (max 5 bullets)
+## Global Checks
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Typecheck | PASS | <summary/log path> |
 
-**Insights for next worker:**
-- [Patterns discovered, gotchas, warnings, context]
-```
+## Story Results
+| Story | Result | Evidence | Notes |
+| --- | --- | --- | --- |
+| STORY-001 | PASS | <path> | <notes> |
 
----
+## Browser/API Evidence
+- `<path>` - <what it proves>
 
-## sprint-completion.md (Phase 4 Output)
-
-```markdown
-# Sprint: <name> -- Completion Summary
-
-**Sprint Goal:** [From README]
-**Completed:** [Date]
-
-## Results
-
-| Story | Title | Status | Commit |
-|-------|-------|--------|--------|
-| STORY-001 | [Title] | completed | abc1234 |
-| STORY-002 | [Title] | completed | def5678 |
-
-## Build Status
-- TypeScript: PASS / FAIL
-- Lint: PASS / FAIL
-- Tests: PASS / FAIL ([N] passed, [N] failed)
-- Build: PASS / FAIL
+## Fixes Applied During Verification
+- `<file or commit>` - <fix summary>
 
 ## Outstanding Issues
-- [Any unresolved problems, partial completions, known bugs]
-
-## Notes
-- [Anything the verification phase needs to know]
-```
-
----
-
-## verification-report.md (Phase 5 Output)
-
-```markdown
-# Sprint: <name> -- Verification Report
-
-**Verified by:** [Agent/tool]
-**Date:** [Date]
-
-## Test Results
-- TypeScript: PASS / FAIL
-- Lint: PASS / FAIL
-- Tests: PASS / FAIL ([N] passed, [N] failed, [N] skipped)
-- Build: PASS / FAIL
-
-## Per-Story Verification
-
-| Story | Title | Tests | Browser | Status |
-|-------|-------|-------|---------|--------|
-| STORY-001 | [Title] | PASS | PASS | verified |
-| STORY-002 | [Title] | PASS | N/A | verified |
-
-## Browser Verification Results
-
-### /route/path
-- [x] [Expected behavior] -- PASS
-- [ ] [Expected behavior] -- FAIL: [description of failure]
-
-### /another/route
-- [x] [Expected behavior] -- PASS
-
-## Evidence
-> Link to video/GIF recordings captured during verification. One entry per verified route or interaction.
-
-| Story | Route / Action | Recording | Notes |
-|-------|---------------|-----------|-------|
-| STORY-001 | `/route/path` | `evidence/story-001-route-path.gif` | Shows [behavior] working |
-| STORY-002 | Form submit | `evidence/story-002-form-submit.mp4` | Confirms validation + success state |
-
-- Store recordings in `sprint-dir/evidence/` alongside other sprint artifacts
-- Naming convention: `story-NNN-description.{gif,mp4}`
-- Only required for browser-verified stories; CLI-only stories can note "N/A -- CLI verified"
-
-## Fixes Applied
-- `path/to/file.ts` -- [What was fixed and why]
-- `path/to/other.ts` -- [What was fixed and why]
-
-## Outstanding Issues
-- [Issues found but not fixed -- too large for verification phase]
-- [Recommended for next sprint]
+- <issue, severity, recommendation>
 
 ## Recommendation
-**MERGE** / **NEEDS WORK**
-
-[1-2 sentences explaining the recommendation]
-```
-
----
-
-## RETRO.md (Post-Sprint)
-
-```markdown
-# Sprint: <name> -- Retrospective
-
-## What Worked
-- [2-4 bullets]
-
-## What Didn't Work
-- [2-4 bullets]
-
-## Changes for Next Sprint
-- [2-4 concrete process changes]
-
-## Follow-up Stories
-- [Stories for next sprint]
+<Short rationale.>
 ```

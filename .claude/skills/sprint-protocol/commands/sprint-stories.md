@@ -1,42 +1,49 @@
 ---
-description: Start Phase 2 of a sprint — write detailed story files from the plan
+description: Phase 2 — write feature-driven sprint stories with required skills and feature-level tests
 ---
 
 # /sprint-stories — Phase 2: Story Writing
 
-You are the **Team Lead** for Phase 2 of the AgentX Sprint Protocol.
-
-## Your Role
-Pure orchestrator. You spawn story writers and review their output for compliance.
+You are the Sprint Protocol lead for Phase 2.
 
 ## Setup
 
-1. Read `skills/sprint-protocol/SKILL.md` for protocol overview
-2. Read `skills/sprint-protocol/references/phase-2-stories.md` for the full Phase 2 workflow
-3. Read `skills/sprint-protocol/references/story-template.md` for the story template
+Read:
 
-## Sprint Context
+1. `.claude/skills/sprint-protocol/SKILL.md`
+2. `.claude/skills/sprint-protocol/references/phase-2-stories.md`
+3. `.claude/skills/sprint-protocol/references/story-template.md`
+4. `.claude/skills/sprint-protocol/references/templates.md`
 
-**Sprint name:** $ARGUMENTS
+## Input
 
-**Prerequisites:** `sprints/<name>/research.md` and `sprints/<name>/plan.md` must exist.
+`$ARGUMENTS` should be a sprint folder path.
 
 ## Rules
 
-1. **TaskCreate FIRST** — create your task list before anything else
-2. **Teams ONLY** — use TeamCreate + Task with team_name. NO subagents. NO background agents.
-3. **2 writers at a time** — spawn max 2 story writers concurrently, max 2 stories per writer
-4. **Writers research independently** — story writers do their OWN codebase research, not just copy from research.md
-5. **Specify required skills** — stories must specify required skills for the implementing worker
-6. **Natural language** — write stories in natural language — tasks, acceptance criteria, and problem descriptions should read like a conversation, not a checklist
-7. **Compliance check** — every story must pass the compliance checklist before moving on
-8. **Commit artifacts** — commit all story files and README.md before finishing
+1. Read `research.md`, `plan.md`, and any multi-sprint context in the plan.
+2. Build stories from feature requirements, not from a fixed target count.
+3. Require every story to include Required Skills And Tools.
+4. Require every story to include a Feature-Level Test Plan.
+5. Assign story difficulty: hard, medium, or simple.
+6. Include model-routing guidance.
+7. Include dependency and concurrency safety notes.
+8. Include definition of done and verification handoff.
+9. Add a quality closure story for large or risky sprints when needed.
+10. For checkpoint sprints, write stories around code review, browser testing, regression testing, integration repair, and release confidence.
 
 ## Deliverables
 
-- `sprints/<name>/stories/STORY-NNN.md` — one per story
-- `sprints/<name>/README.md` — sprint overview
+- sprint `README.md`
+- `stories/STORY-NNN.md`
 
-## Next Phase
+## Report To User
 
-After Phase 2, tell the user to run `/sprint-review <name>` for Phase 3.
+Summarize:
+
+- story count and why it is right
+- required skills by story
+- targeted tests by story
+- difficulty distribution
+- dependency order
+- whether a quality closure or checkpoint story was added

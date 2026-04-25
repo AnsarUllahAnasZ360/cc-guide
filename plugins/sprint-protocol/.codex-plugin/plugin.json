@@ -1,7 +1,7 @@
 {
   "name": "sprint-protocol",
   "version": "0.1.0",
-  "description": "Codex-native sprint protocol for research, story writing, review, implementation, verification, and PR handoff.",
+  "description": "Codex-native sprint protocol for research, story writing, review, implementation, optional verification, and PR handoff.",
   "author": {
     "name": "Ansar Ullah",
     "email": "ansar@z360.biz",
@@ -20,8 +20,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Sprint Protocol",
-    "shortDescription": "Run reliable Codex sprints from research to PR.",
-    "longDescription": "A Codex-optimized sprint operating system. It turns large product or engineering goals into durable sprint artifacts, uses Codex subagents for research, story writing, implementation, review, and verification, keeps long-running work resumable through files and plans, and can hand verification to dedicated ProofOps or GitHub/Vercel skills when available.",
+    "shortDescription": "Run reliable Codex sprints from planning to QA.",
+    "longDescription": "A Codex-optimized sprint operating system. It turns raw founder requirements or baked planning packets into one or more independent sprint folders, uses Codex subagents for research, story writing, implementation, review, and optional verification, keeps long-running work resumable through sprint files, and can hand browser QA or final proof to Browser Use, ProofOps, GitHub, Vercel, or project-specific verification skills when available.",
     "developerName": "Ansar Ullah",
     "category": "Developer Tools",
     "capabilities": [
@@ -38,7 +38,8 @@
     "defaultPrompt": [
       "Use Sprint Protocol to research and plan this work.",
       "Use Sprint Protocol to write and review stories.",
-      "Use Sprint Protocol to execute and verify this sprint."
+      "Use Sprint Protocol to execute this sprint.",
+      "Use sprint-verify to run QA evidence verification when needed."
     ],
     "brandColor": "#1F7A72"
   }
