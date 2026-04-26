@@ -49,6 +49,19 @@ const AVAILABLE_PLUGINS = {
       'Phase prompts: sprint-research, sprint-stories, sprint-review, sprint-execute, sprint-verify.',
       'Use sprint-verify only when you want the dedicated QA/evidence pass.'
     ]
+  },
+  'qa': {
+    description: 'Codex-native end-to-end QA with Browser Use verification and narrated proof videos',
+    folder: 'qa',
+    category: 'Developer Tools',
+    ignoreArtifacts: true,
+    afterInstall: [
+      'Use it with: "Use QA to verify this work end to end."',
+      'Browser proof uses Browser Use-driven walkthrough recording plus supporting evidence.',
+      '',
+      'Optional secure Deepgram key storage:',
+      '  DEEPGRAM_API_KEY=... node plugins/qa/scripts/deepgram-key.mjs set'
+    ]
   }
 };
 
@@ -78,10 +91,13 @@ Examples:
   npx @ansarullahanas/cc-guide add-skill --all
   npx @ansarullahanas/cc-guide add-plugin proof-driven-verification
   npx @ansarullahanas/cc-guide add-plugin sprint-protocol
+  npx @ansarullahanas/cc-guide add-plugin qa
   npx @ansarullahanas/cc-guide add-plugin proof-driven-verification --global
   npx @ansarullahanas/cc-guide add-plugin sprint-protocol --global
+  npx @ansarullahanas/cc-guide add-plugin qa --global
   npx @ansarullahanas/cc-guide add-plugin proof-driven-verification --setup
   npx @ansarullahanas/cc-guide proofops --task "Verify this branch"
+  npx @ansarullahanas/cc-guide qa --task "Verify this branch"
 `);
 }
 
@@ -255,6 +271,20 @@ function addPlugin(pluginName, targetDir, options = {}) {
   }
 }
 
+function findPluginDir(targetDir, pluginName) {
+  const localDir = path.join(targetDir, 'plugins', pluginName);
+  if (fs.existsSync(localDir)) {
+    return localDir;
+  }
+
+  const globalDir = path.join(os.homedir(), 'plugins', pluginName);
+  if (fs.existsSync(globalDir)) {
+    return globalDir;
+  }
+
+  return null;
+}
+
 function main() {
   const args = process.argv.slice(2);
 
@@ -307,6 +337,25 @@ function main() {
     const { spawnSync } = require('child_process');
     const script = path.join(pluginDir, 'scripts', 'proofops.mjs');
     const result = spawnSync('node', [script, 'verify', ...args.slice(1)], {
+      cwd: targetDir,
+      stdio: 'inherit'
+    });
+    process.exit(result.status || 0);
+  }
+
+  if (command === 'qa') {
+    let pluginDir = findPluginDir(targetDir, 'qa');
+    if (!pluginDir) {
+      addPlugin('qa', targetDir, { force: false, setup: false, global: true });
+      pluginDir = findPluginDir(targetDir, 'qa');
+    }
+    if (!pluginDir) {
+      console.error('QA plugin was not found after installation.');
+      process.exit(1);
+    }
+    const { spawnSync } = require('child_process');
+    const script = path.join(pluginDir, 'scripts', 'qa.mjs');
+    const result = spawnSync('node', [script, 'prompt', ...args.slice(1)], {
       cwd: targetDir,
       stdio: 'inherit'
     });

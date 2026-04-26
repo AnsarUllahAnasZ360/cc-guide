@@ -21,6 +21,7 @@ A focused set of skills and plugins that make the complicated stuff simple:
 - **`/agent-browser`** — Browser automation for verifying UI actually works
 - **ProofOps Verification** — Review branches, fix issues, capture browser proof, and render proof videos
 - **Sprint Protocol** — Run Codex-native research, stories, execution, optional QA verification, and PR handoff
+- **QA** — Run Codex-native end-to-end QA with Browser Use, tests, fixes, documentation, and narrated proof videos
 
 Plus guides on how to actually use Claude Code productively.
 
@@ -62,6 +63,7 @@ Install the richer Codex plugin version when you want the Codex plugin card, pha
 ```bash
 npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin proof-driven-verification
 npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin sprint-protocol
+npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin qa
 ```
 
 ### Install A Plugin Globally For Codex
@@ -71,6 +73,7 @@ Install once into your home Codex plugin catalog so it is available from any pro
 ```bash
 npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin proof-driven-verification --global
 npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin sprint-protocol --global
+npx github:AnsarUllahAnasZ360/cc-guide#main add-plugin qa --global
 ```
 
 After the npm package is published at `1.1.0` or newer, the equivalent npm form is:
@@ -78,6 +81,7 @@ After the npm package is published at `1.1.0` or newer, the equivalent npm form 
 ```bash
 npx @ansarullahanas/cc-guide add-plugin proof-driven-verification --global
 npx @ansarullahanas/cc-guide add-plugin sprint-protocol --global
+npx @ansarullahanas/cc-guide add-plugin qa --global
 ```
 
 This writes plugins into `~/plugins/<plugin-name>` and updates `~/.agents/plugins/marketplace.json`.
@@ -90,6 +94,7 @@ Use Sprint Protocol to research and plan this work.
 Use sprint-stories to write stories for sprint <name>.
 Use sprint-execute to implement sprint <name>.
 Use sprint-verify to run QA/evidence verification for sprint <name> and prepare the PR when needed.
+Use QA to verify these sprint folders end to end.
 ```
 
 Optional one-command install plus host-level prerequisite setup. This may install or check workstation tools such as Agent Browser, ffmpeg/ffprobe, browser payloads, and the optional Deepgram CLI:
@@ -104,6 +109,18 @@ Run ProofOps in one command from any repo. If the plugin is not already installe
 npx github:AnsarUllahAnasZ360/cc-guide#main proofops --task "Verify this branch before I merge it"
 ```
 
+Generate a QA invocation prompt from any repo:
+
+```bash
+npx github:AnsarUllahAnasZ360/cc-guide#main qa --task "Verify these completed sprint folders end to end"
+```
+
+After the npm package is published at `1.1.0` or newer, the equivalent npm form is:
+
+```bash
+npx @ansarullahanas/cc-guide qa --task "Verify these completed sprint folders end to end"
+```
+
 Run the doctor after installing the plugin in a repo:
 
 ```bash
@@ -114,6 +131,7 @@ Store Deepgram securely on macOS without committing it:
 
 ```bash
 DEEPGRAM_API_KEY=... node plugins/proof-driven-verification/scripts/deepgram-key.mjs set
+DEEPGRAM_API_KEY=... node ~/plugins/qa/scripts/deepgram-key.mjs set
 ```
 
 ### Use the Skills

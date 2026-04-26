@@ -1,0 +1,61 @@
+{
+  "name": "qa",
+  "version": "0.1.0",
+  "description": "Codex-native end-to-end QA orchestration with code review, runtime diagnostics, Browser Use verification, tests, fixes, documentation, commits, and narrated proof videos.",
+  "author": {
+    "name": "Ansar Ullah",
+    "email": "ansar@z360.biz",
+    "url": "https://z360.biz"
+  },
+  "homepage": "https://github.com/AnsarUllahAnasZ360/cc-guide",
+  "repository": "https://github.com/AnsarUllahAnasZ360/cc-guide",
+  "license": "MIT",
+  "keywords": [
+    "qa",
+    "verification",
+    "browser-use",
+    "nextjs",
+    "convex",
+    "proof-video",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "QA",
+    "shortDescription": "Run end-to-end QA with Browser Use proof videos.",
+    "longDescription": "A Codex-native QA operating system. It launches specialist subagents for code review, tests, Next.js runtime diagnostics, Convex review, browser verification, fixes, proof production, documentation, and commit handoff. It uses the Browser Use plugin as the user-visible verification surface and renders founder-facing proof videos only after clean QA gates, with a recorded browser walkthrough as the primary evidence and screenshots/logs as support.",
+    "developerName": "Ansar Ullah",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write",
+      "Subagent orchestration",
+      "Browser automation",
+      "Verification",
+      "Video proof",
+      "Git workflow"
+    ],
+    "websiteURL": "https://openai.com/codex",
+    "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
+    "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
+    "defaultPrompt": [
+      "Use QA to verify this completed work end to end.",
+      "Use QA to review, browser-test, fix, document, render a proof video, and commit this sprint.",
+      "Use QA on these sprint folders and produce one proof video per sprint."
+    ],
+    "brandColor": "#145A5A",
+    "composerIcon": "./assets/qa-avatar.svg",
+    "logo": "./assets/qa-avatar.svg",
+    "screenshots": []
+  },
+  "x-qa": {
+    "companionPlugins": [
+      "browser-use",
+      "computer-use",
+      "github"
+    ],
+    "primaryBrowserSurface": "browser-use",
+    "computerUsePolicy": "fallback-for-native-gui-or-browser-use-blockers",
+    "proofVideoStrategy": "browser-use-recorded-walkthrough-plus-remotion-deepgram"
+  }
+}

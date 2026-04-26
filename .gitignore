@@ -26,6 +26,9 @@ npm-debug.log*
 # Ralph TUI iteration logs (can be large)
 .ralph-tui/iterations/
 
+# Local proof artifacts
+artifacts/
+
 # Temporary files
 *.tmp
 *.temp

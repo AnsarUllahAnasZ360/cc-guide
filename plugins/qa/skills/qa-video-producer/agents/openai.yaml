@@ -1,0 +1,7 @@
+interface:
+  display_name: "QA Video Producer"
+  short_description: "Produce proof videos after QA passes"
+  brand_color: "#145A5A"
+  default_prompt: "Use $qa-video-producer to produce the final proof video for this passed QA run."
+policy:
+  allow_implicit_invocation: true

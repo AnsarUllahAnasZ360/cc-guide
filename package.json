@@ -33,6 +33,8 @@
     "bin/",
     "skills/",
     "plugins/",
-    "templates/"
+    "templates/",
+    "!plugins/**/node_modules/**",
+    "!plugins/**/.qa-video-remotion/**"
   ]
 }

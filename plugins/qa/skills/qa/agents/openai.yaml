@@ -1,0 +1,7 @@
+interface:
+  display_name: "QA"
+  short_description: "End-to-end QA with Browser Use proof videos"
+  brand_color: "#145A5A"
+  default_prompt: "Use $qa to verify this work end to end with Browser Use and a proof video."
+policy:
+  allow_implicit_invocation: true
