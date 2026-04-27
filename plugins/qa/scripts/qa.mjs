@@ -25,8 +25,10 @@ function usage() {
   console.log(`QA
 
 Usage:
+  node plugins/qa/scripts/qa.mjs setup [--install] [--smoke]
   node plugins/qa/scripts/qa.mjs prompt --task "Verify this work" [--sprint sprints/name]
   node plugins/qa/scripts/qa.mjs run --task "Verify this work" [--sprint sprints/name]
+  node plugins/qa/scripts/qa.mjs proof-video <run-dir> --target-url <url>
 `);
 }
 
@@ -45,11 +47,11 @@ function buildPrompt() {
     '',
     'Preferences:',
     '- Use subagents for code review, tests, Next.js diagnostics, Convex review, Browser Use QA, Computer Use fallback when justified, fixes, documentation, and proof production.',
-    '- Use Browser Use in the Codex in-app browser for user-visible verification when available.',
-    '- Record only the final clean demo, not exploratory debugging. Use plugins/qa/scripts/record-agent-browser-walkthrough.mjs with one unique Agent Browser session/profile, doctor logs, ffprobe, and sampled frames.',
-    '- Use Computer Use only for native GUI, system-dialog, extension, simulator, or browser-runtime blocker scenarios.',
+    '- Use Browser Use in the Codex in-app browser for all user-visible verification.',
+    '- Use Playwright recording from an explicit proof walkthrough plan as the default proof-video recorder. Browser Use frame recording and macOS screen recording are fallback/diagnostic paths, not the default founder proof path.',
+    '- Use Computer Use only for native GUI, system-dialog, extension, simulator, or Browser Use blocker scenarios.',
     '- Use GitHub or gh for PR comments, CI, and publish context when the target has a PR.',
-    '- Do not use default Agent Browser sessions, shared profiles, repeated --auto-connect, unmanaged tabs, stale refs, or host screen capture as proof.',
+    '- Use Agent Browser CLI only as the last fallback after Browser Use and Computer Use cannot complete the needed capture or diagnostic path.',
     '- Create a walkthrough recording, supporting screenshots, logs, manifest, verification-report.md, and a narrated QA proof video.',
     '- Do not render a founder-facing proof video unless the manifest verdict/gates are PASS or MERGE-ready and the walkthrough recording is present.',
     '- Iterate fixes until the definition of done passes or a hard blocker is proven.',
@@ -62,6 +64,18 @@ function buildPrompt() {
 if (args.includes('--help') || args.includes('-h')) {
   usage();
   process.exit(0);
+}
+
+if (command === 'setup') {
+  const setupArgs = ['plugins/qa/scripts/setup-qa-video-pipeline.mjs', ...args.slice(1)];
+  const result = run('node', setupArgs);
+  process.exit(result.status || 0);
+}
+
+if (command === 'proof-video') {
+  const proofArgs = ['plugins/qa/scripts/run-proof-video-pipeline.mjs', ...args.slice(1)];
+  const result = run('node', proofArgs);
+  process.exit(result.status || 0);
 }
 
 if (command !== 'prompt' && command !== 'run') {

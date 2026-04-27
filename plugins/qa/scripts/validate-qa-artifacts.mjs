@@ -151,9 +151,12 @@ function recordingFromMetadata(metadataPath, metadata) {
 
 function findWalkthroughRecording(manifest) {
   const candidates = [
+    manifest?.recordings?.playwrightProofWalkthrough,
     manifest?.recordings?.walkthrough,
     manifest?.recordings?.browserWalkthrough,
     manifest?.recordings?.primary,
+    manifest?.proofVideoPipeline?.recording,
+    manifest?.artifacts?.rawProofVideo,
     manifest?.artifacts?.walkthroughRecording,
     manifest?.artifacts?.recording
   ];
@@ -177,16 +180,34 @@ function proofVideoPath(manifest) {
   return (
     resolveRunPath(manifest?.proofVideo) ||
     resolveRunPath(manifest?.artifacts?.proofVideo) ||
+    resolveRunPath(manifest?.proofVideoPipeline?.render?.outputPath) ||
+    path.join(runDir, 'proof-video', 'final', 'qa-proof-video.mp4') ||
     path.join(runDir, 'qa-proof-video.mp4')
+  );
+}
+
+function proofVideoAuthorized(manifest) {
+  const decision = fieldText(manifest?.videoDecision || manifest?.proofVideoPipeline?.videoDecision || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+  return (
+    allowNonPassingReport ||
+    manifest?.proofVideoPolicy?.allowNonPassingReport === true ||
+    manifest?.proofVideoPolicy?.mode === 'report-only' ||
+    (manifest?.mode === 'proof-video' && decision.includes('authorized') && decision.includes('pass'))
   );
 }
 
 requireFile('verification-report.md');
 const manifestFile = requireFile('manifest.json');
-const screenshots = listFiles('screenshots', /\.(png|jpe?g)$/i);
+let screenshots = [];
+for (const screenshotDir of ['screenshots', path.join('proof-video', 'screenshots')]) {
+  if (exists(screenshotDir)) screenshots.push(...listFiles(screenshotDir, /\.(png|jpe?g)$/i));
+}
 
 if (screenshots.length === 0) {
-  errors.push('No screenshots found under screenshots/');
+  errors.push('No screenshots found under screenshots/ or proof-video/screenshots/.');
 }
 
 for (const screenshot of screenshots) {
@@ -194,15 +215,18 @@ for (const screenshot of screenshots) {
   if (stat.size === 0) errors.push(`Empty screenshot: ${screenshot}`);
 }
 
-if (!exists('logs')) {
-  errors.push('Missing directory: logs');
+if (!exists('logs') && !exists(path.join('proof-video', 'logs'))) {
+  errors.push('Missing directory: logs or proof-video/logs');
 }
 
-const videoPath = path.join(runDir, 'qa-proof-video.mp4');
-if (fs.existsSync(videoPath)) {
-  if (fs.statSync(videoPath).size === 0) errors.push('Empty proof video: qa-proof-video.mp4');
+const defaultProofVideoPath = path.join(runDir, 'proof-video', 'final', 'qa-proof-video.mp4');
+const legacyProofVideoPath = path.join(runDir, 'qa-proof-video.mp4');
+if (fs.existsSync(defaultProofVideoPath)) {
+  if (fs.statSync(defaultProofVideoPath).size === 0) errors.push('Empty proof video: proof-video/final/qa-proof-video.mp4');
+} else if (fs.existsSync(legacyProofVideoPath)) {
+  if (fs.statSync(legacyProofVideoPath).size === 0) errors.push('Empty proof video: qa-proof-video.mp4');
 } else {
-  warnings.push('qa-proof-video.mp4 not present');
+  warnings.push('proof-video/final/qa-proof-video.mp4 not present');
 }
 
 const requiredFields = [
@@ -237,10 +261,7 @@ if (manifestFile) {
     for (const field of requiredFields) {
       if (!(field in manifest)) warnings.push(`manifest.json missing field: ${field}`);
     }
-    const policyAllowsReportOnly =
-      allowNonPassingReport ||
-      manifest?.proofVideoPolicy?.allowNonPassingReport === true ||
-      manifest?.proofVideoPolicy?.mode === 'report-only';
+    const policyAllowsReportOnly = proofVideoAuthorized(manifest);
     const passingVerdict = isPassingVerdict(manifest);
     const cleanGates = hasCleanGates(manifest);
     const proofReady = passingVerdict && cleanGates;

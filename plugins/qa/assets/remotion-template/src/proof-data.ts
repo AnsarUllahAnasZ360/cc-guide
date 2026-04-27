@@ -1,5 +1,6 @@
 export const proofData = {
   title: "QA verification",
+  statusLabel: "recorded",
   verdict: "pending",
   durationInFrames: 1050,
   fps: 30,

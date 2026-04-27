@@ -1,7 +1,7 @@
 {
   "name": "qa",
   "version": "0.1.0",
-  "description": "Codex-native end-to-end QA orchestration with code review, runtime diagnostics, Browser Use verification, tests, fixes, documentation, commits, and narrated proof videos.",
+  "description": "Codex-native QA orchestration with setup, verification, explanation, Browser Use truth, tests, fixes, documentation, commits, and narrated proof videos.",
   "author": {
     "name": "Ansar Ullah",
     "email": "ansar@z360.biz",
@@ -22,8 +22,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "QA",
-    "shortDescription": "Run end-to-end QA with Browser Use proof videos.",
-    "longDescription": "A Codex-native QA operating system. It launches specialist subagents for code review, tests, Next.js runtime diagnostics, Convex review, browser verification, fixes, proof production, documentation, and commit handoff. It uses the Browser Use plugin as the user-visible verification surface and renders founder-facing proof videos only after clean QA gates, with a recorded browser walkthrough as the primary evidence and screenshots/logs as support.",
+    "shortDescription": "Run QA with Browser Use truth and proof videos.",
+    "longDescription": "A Codex-native QA operating system with setup, QA, proof-video, and explain modes. It launches specialist subagents for code review, tests, runtime diagnostics, browser verification, fixes, proof production, documentation, and commit handoff. It uses Browser Use as the user-visible web verification truth, Computer Use as the fallback for native/system/real-profile/desktop blockers, Playwright recording as the default proof-video recorder, and Agent Browser CLI only as a last fallback. Founder-facing proof videos are rendered only after clean QA gates, with a real recorded browser walkthrough as the primary video evidence and screenshots/logs as support.",
     "developerName": "Ansar Ullah",
     "category": "Developer Tools",
     "capabilities": [
@@ -39,9 +39,12 @@
     "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
     "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
     "defaultPrompt": [
+      "Use QA to plan the verification work and create the task list before execution.",
       "Use QA to verify this completed work end to end.",
+      "Use QA to set up and doctor the local proof-video pipeline.",
       "Use QA to review, browser-test, fix, document, render a proof video, and commit this sprint.",
-      "Use QA on these sprint folders and produce one proof video per sprint."
+      "Use QA on these sprint folders and produce one proof video per sprint.",
+      "Use QA to explain this verification report and why video was or was not produced."
     ],
     "brandColor": "#145A5A",
     "composerIcon": "./assets/qa-avatar.svg",
@@ -54,8 +57,17 @@
       "computer-use",
       "github"
     ],
+    "modes": [
+      "planning",
+      "setup",
+      "qa",
+      "proof-video",
+      "explain"
+    ],
     "primaryBrowserSurface": "browser-use",
-    "computerUsePolicy": "fallback-for-native-gui-or-browser-use-blockers",
-    "proofVideoStrategy": "browser-use-recorded-walkthrough-plus-remotion-deepgram"
+    "computerUsePolicy": "fallback-for-native-system-real-profile-desktop-multi-app-or-browser-use-blockers",
+    "agentBrowserPolicy": "last-fallback-only-for-capture-or-diagnostics",
+    "proofVideoStrategy": "browser-use-verified-workflow-plus-playwright-recording-plus-remotion-deepgram",
+    "recorderMutationPolicy": "recorders-and-video-scripts-may-append-artifact-metadata-but-must-not-mutate-verdicts-gates-or-outcomes"
   }
 }

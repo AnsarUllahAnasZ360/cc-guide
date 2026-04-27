@@ -16,6 +16,11 @@ const shortList = (items: readonly unknown[], fallback: string) => {
   return normalized.length ? normalized.join(" / ") : fallback;
 };
 
+const statusLabel = () => {
+  const data = proofData as unknown as { statusLabel?: string; verdict?: string };
+  return data.statusLabel || data.verdict || "recorded";
+};
+
 const secondsToFrames = (seconds: number, fps: number) => Math.max(1, Math.round(seconds * fps));
 
 const activeChapter = (localSeconds: number) => {
@@ -34,8 +39,8 @@ const SupportCards = () => {
   return (
     <aside className="supportCards">
       <div className="supportCard">
-        <span>Verdict</span>
-        <strong>{proofData.verdict}</strong>
+        <span>QA status</span>
+        <strong>{statusLabel()}</strong>
       </div>
       <div className="supportCard">
         <span>Routes</span>
@@ -66,11 +71,11 @@ const Intro = () => {
         <div className="eyebrow">Founder proof</div>
         <h1>{proofData.title}</h1>
         <p>
-          This video opens with the QA verdict, then uses the recorded browser walkthrough as the primary evidence.
+          This video opens with the QA evidence summary, then uses the Playwright-recorded browser walkthrough as the primary evidence.
           Screenshots and checks stay on the side as chapter context.
         </p>
         <div className="badges">
-          <span>{proofData.verdict}</span>
+          <span>{statusLabel()}</span>
           <span>{Math.round(proofData.walkthroughDurationSeconds)}s walkthrough</span>
           <span>{proofData.proofVideoPolicy.primaryEvidence}</span>
         </div>
@@ -92,31 +97,35 @@ const Walkthrough = () => {
   const walkthroughFrame = proofData.walkthroughFrames[frameIndex] || null;
   const localSeconds = frame / fps;
   const chapter = activeChapter(localSeconds);
-  const progress = interpolate(frame, [0, durationInFrames], [0, 100], {
-    extrapolateRight: "clamp",
-  });
 
   return (
-    <AbsoluteFill className="walkthroughFull">
-      <div className="videoStageFull">
-        {walkthroughVideo ? (
-          <OffthreadVideo
-            src={staticFile(walkthroughVideo)}
-            className="walkthroughVideoFull"
-            muted
-          />
-        ) : walkthroughFrame ? (
-          <Img src={staticFile(walkthroughFrame)} className="walkthroughVideoFull" />
-        ) : (
-          <div className="empty">
-            <strong>No walkthrough video</strong>
-            <span>The renderer only allows this in explicit report-only smoke mode.</span>
+    <AbsoluteFill className="walkthrough scene">
+      <div className="walkthroughCanvas">
+        <div className="videoShell">
+          <div className="chrome">
+            <span className="dot red" />
+            <span className="dot yellow" />
+            <span className="dot green" />
+            <p>{walkthroughVideo ? "Recorded Playwright walkthrough" : "Recorded frame walkthrough"}</p>
           </div>
-        )}
-        {chapter ? <div className="chapterOverlay">{chapter}</div> : null}
-        <div className="walkthroughProgress floating">
-          <div style={{ width: `${progress}%` }} />
+          <div className="videoStage">
+            {walkthroughVideo ? (
+              <OffthreadVideo
+                src={staticFile(walkthroughVideo)}
+                className="walkthroughVideo"
+                muted={proofData.hasAudio}
+              />
+            ) : walkthroughFrame ? (
+              <Img src={staticFile(walkthroughFrame)} className="walkthroughVideo" />
+            ) : (
+              <div className="empty">
+                <strong>No walkthrough video</strong>
+                <span>The renderer only allows this in explicit report-only smoke mode.</span>
+              </div>
+            )}
+          </div>
         </div>
+        {chapter ? <div className="chapterOverlay">{chapter}</div> : null}
       </div>
     </AbsoluteFill>
   );
@@ -130,7 +139,7 @@ const Outro = () => {
     <AbsoluteFill className="outro scene" style={{ opacity }}>
       <section className="outroCopy">
         <div className="eyebrow">Closeout</div>
-        <h1>Final verdict: {proofData.verdict}</h1>
+        <h1>QA status: {statusLabel()}</h1>
         <p>
           {hasBlockers
             ? `Open blockers: ${shortList(proofData.blockers, "see report")}.`
@@ -146,20 +155,16 @@ const Outro = () => {
 };
 
 export const QAVideo = () => {
-  const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const introFrames = secondsToFrames(proofData.timing.introSeconds, fps);
   const walkthroughFrames = secondsToFrames(proofData.timing.walkthroughSeconds, fps);
   const outroStart = introFrames + walkthroughFrames;
   const outroFrames = Math.max(1, durationInFrames - outroStart);
-  const progress = interpolate(frame, [0, durationInFrames], [0, 100], {
-    extrapolateRight: "clamp",
-  });
 
   return (
     <AbsoluteFill className="root">
       {proofData.hasAudio ? <Audio src={staticFile("assets/narration.mp3")} /> : null}
-      {proofData.narrationSegments.map((segment, index) => (
+      {proofData.narrationSegments.filter((segment) => segment.file).map((segment, index) => (
         <Sequence
           key={`${segment.file}-${index}`}
           from={introFrames + secondsToFrames(segment.startSeconds, fps)}
@@ -169,10 +174,10 @@ export const QAVideo = () => {
         </Sequence>
       ))}
       <div className="grid" />
-      <header className={frame >= introFrames && frame < outroStart ? "hiddenHeader" : ""}>
+      <header>
         <div className="mark">QA</div>
         <strong>Codex QA Proof</strong>
-        <span>Walkthrough recording + supporting evidence</span>
+        <span>Playwright walkthrough + supporting evidence</span>
       </header>
       <Sequence from={0} durationInFrames={introFrames} premountFor={24}>
         <Intro />
@@ -183,9 +188,6 @@ export const QAVideo = () => {
       <Sequence from={outroStart} durationInFrames={outroFrames} premountFor={24}>
         <Outro />
       </Sequence>
-      <div className="progress">
-        <div style={{ width: `${progress}%` }} />
-      </div>
     </AbsoluteFill>
   );
 };

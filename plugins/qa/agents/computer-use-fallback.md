@@ -13,12 +13,14 @@ Use Computer Use only when the QA lead confirms the workflow cannot be covered b
 - system dialogs and permissions prompts
 - iOS simulator or desktop GUI workflows
 - workflows tied to an existing logged-in profile that Browser Use cannot safely represent
+- multi-app desktop workflows that cross browser and native app boundaries
 
 ## Rules
 
 - Do not replace Browser Use for normal web app verification.
 - Confirm sensitive actions before transmitting data, changing settings, granting permissions, or interacting with private accounts.
 - Save evidence separately and label it as Computer Use evidence.
+- If Computer Use also cannot cover the blocker, return that blocker to the QA lead. Agent Browser CLI is a last fallback decision by the lead, not an automatic switch by this agent.
 - Return control to the QA lead for synthesis and proof-video decisions.
 
 ## Output

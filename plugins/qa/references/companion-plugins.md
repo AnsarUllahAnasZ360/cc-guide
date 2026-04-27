@@ -19,10 +19,12 @@ Browser Use and Computer Use should remain installed as companion plugins becaus
 QA assumes these companion capabilities when available:
 
 - `browser-use`: primary user-visible browser verification surface.
-- `computer-use`: fallback for native desktop apps, system dialogs, simulator workflows, extension workflows, or Browser Use blockers.
+- `computer-use`: fallback for native desktop apps, system dialogs, simulator workflows, extension workflows, real-profile workflows, multi-app desktop workflows, or Browser Use blockers.
 - `github`: PR context, review comments, CI workflows, and PR publishing.
 
 If a companion plugin is unavailable, QA must degrade gracefully and report the missing capability as a blocker or reduced-confidence path.
+
+Agent Browser CLI is not a companion truth source for normal QA. It is a last fallback for capture or diagnostics only after Browser Use and the appropriate Computer Use path cannot complete the needed work. Any Agent Browser output must be labeled as fallback evidence in the report and manifest.
 
 ## Install Shape
 

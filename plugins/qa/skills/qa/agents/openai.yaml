@@ -1,7 +1,7 @@
 interface:
   display_name: "QA"
-  short_description: "End-to-end QA with Browser Use proof videos"
+  short_description: "QA setup, verification, explain, and proof videos"
   brand_color: "#145A5A"
-  default_prompt: "Use $qa to verify this work end to end with Browser Use and a proof video."
+  default_prompt: "Use $qa to verify this work with Browser Use truth and produce a proof video only after the gates pass."
 policy:
   allow_implicit_invocation: true

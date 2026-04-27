@@ -1,6 +1,6 @@
 ---
 name: qa-video-producer
-description: Use after QA has already passed to produce founder-facing proof videos with an Agent Browser recorded walkthrough, Remotion intro/outro, and Deepgram narration. Never use for partial, failed, or blocked QA runs.
+description: Use after QA has already passed to produce founder-facing proof videos with a Browser Use-verified workflow, a Playwright-recorded walkthrough, Remotion intro/outro, and Deepgram narration. Never use for partial, failed, or blocked QA runs.
 ---
 
 # QA Video Producer
@@ -22,8 +22,8 @@ Then inspect the QA run folder and confirm:
 - `manifest.json` exists.
 - final verdict is `PASS` or `MERGE`.
 - code review, tests, runtime diagnostics, and Browser Use verification are all `PASS` or `MERGE`.
-- browser evidence exists for browser-facing work.
-- a real Agent Browser recorded walkthrough artifact exists or can be produced for the verified workflow.
+- Browser Use evidence exists for browser-facing work.
+- a real recorded browser walkthrough artifact exists or can be produced for the verified workflow, normally through Playwright recording.
 
 If any item is missing, `FAIL`, `BLOCKED`, or `PARTIAL`, stop. Update the report/manifest with a no-video decision if needed, name the blocker, and do not render the founder video.
 
@@ -32,13 +32,15 @@ If any item is missing, `FAIL`, `BLOCKED`, or `PARTIAL`, stop. Update the report
 The proof video must be a real walkthrough artifact:
 
 - The middle is an actual recorded browser walkthrough of the verified workflow.
-- Browser Use remains preferred for Codex-visible web verification when available.
-- Agent Browser is the required native WebM recorder for deterministic final walkthrough videos unless a validated fallback recorder is explicitly documented.
-- Computer Use is fallback only for native GUI, system dialogs, extensions, simulators, or Browser Use blockers after the supported Browser Use setup path has been attempted.
+- Browser Use remains primary for driving the web verification and workflow evidence.
+- Playwright recording is the default proof-video recorder.
+- Computer Use is fallback only for native GUI, system dialogs, extensions, simulators, real-profile, desktop, multi-app, or Browser Use blockers after the supported Browser Use setup path has been attempted.
+- Agent Browser CLI is last fallback only after Browser Use and Computer Use cannot complete the needed capture or diagnostic path. Label any Agent Browser evidence as fallback evidence and explain why it was necessary.
 - Screenshots are supporting evidence only. Do not assemble a screenshot slideshow and call it a proof video.
-- Remotion may create the intro, outro, title cards, captions, overlays, transitions, and final MP4 assembly.
+- Remotion may create the intro, outro, title cards, captions, overlays, and transitions. The preferred final assembly is ffmpeg stitching of standalone Remotion bookends plus the full-screen Playwright walkthrough.
 - Deepgram narration may be generated from `DEEPGRAM_API_KEY` or the QA keychain helper.
 - Do not include PHI, secrets, credentials, production data, or unsafe screen content in narration, screenshots, recordings, reports, or manifests.
+- Video and recorder scripts may append artifact paths, logs, validation metadata, duration, recording status, narration status, and skipped-step reasons. They must never set or mutate `finalVerdict`, `verdict`, required gates, test gates, runtime gates, merge/pass status, or report outcome.
 
 ## Duration
 
@@ -49,13 +51,16 @@ Default to 5-10 minutes for meaningful sprint or feature proof videos. Use a sho
 1. Read the report and manifest.
 2. Verify every required gate is `PASS` or `MERGE`.
 3. Confirm the walkthrough recording covers the verified workflow, not an unrelated happy path.
-4. Write or update `narration.txt` from the verified report.
-5. Generate narration audio when Deepgram is available.
-6. Use Remotion only for packaging: intro, walkthrough middle, overlays, captions, outro, and final assembly.
-7. Validate that `qa-proof-video.mp4` exists, has non-zero size, and is backed by the walkthrough recording.
-8. Update the report and manifest with the video path, duration, source recording path, and any skipped narration reason.
-
-Before recording a new walkthrough, run `agent-browser close --all`, create a unique session and profile, run `agent-browser doctor --json`, save `agent-browser skills get core --full`, record only the final deterministic demo, then validate with `ffprobe` and sampled frames.
+4. Create or refresh the walkthrough plan with `create-proof-walkthrough-plan.mjs`.
+5. Record the walkthrough with `record-playwright-proof-walkthrough.mjs` unless the run documents an approved fallback.
+6. Validate the source recording and final video metadata with `validate-proof-video.mjs`.
+7. Write or update `narration.txt` from the verified report.
+8. Generate narration audio with `generate-deepgram-narration.mjs` when Deepgram is available.
+9. Render standalone bookend segments with `render-remotion-proof-segment.mjs`.
+10. Assemble intro, full-screen walkthrough, narration, and optional outro with `assemble-proof-video-segments.mjs`.
+11. Use `run-proof-video-pipeline.mjs` when the project provides the end-to-end wrapper.
+12. Validate that the final MP4 exists, has non-zero size, keeps the full walkthrough segment, and is backed by the walkthrough recording.
+13. Update the report and manifest with the video path, duration, source recording path, validation data, recording status, and any skipped narration reason.
 
 ## Output
 

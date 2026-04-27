@@ -9,6 +9,7 @@ const runArg = rawArgs.find(arg => !arg.startsWith('--'));
 const skipTts = rawArgs.includes('--skip-tts');
 const dryRun = rawArgs.includes('--dry-run');
 const smoke = rawArgs.includes('--smoke');
+const legacy = rawArgs.includes('--legacy');
 const allowNonPassingReport = rawArgs.includes('--allow-non-passing-report');
 const allowFrameRecording = rawArgs.includes('--allow-frame-recording');
 const voiceModel =
@@ -20,8 +21,15 @@ const walkthroughDurationOverrideSeconds = numberArg('--walkthrough-duration-sec
 const fpsOverride = numberArg('--fps');
 
 if (!runArg || rawArgs.includes('--help')) {
-  console.log('Usage: node plugins/qa/scripts/render-qa-video.mjs <run-dir> [--skip-tts] [--voice-model=aura-2-thalia-en] [--dry-run] [--smoke] [--duration-seconds=60] [--walkthrough-duration-seconds=45] [--fps=15] [--allow-non-passing-report] [--allow-frame-recording]');
+  console.log('Usage: node plugins/qa/scripts/render-qa-video.mjs <run-dir> --legacy [--skip-tts] [--voice-model=aura-2-thalia-en] [--dry-run] [--smoke] [--duration-seconds=60] [--walkthrough-duration-seconds=45] [--fps=15] [--allow-non-passing-report] [--allow-frame-recording]');
   process.exit(runArg ? 0 : 1);
+}
+
+if (!legacy) {
+  console.error(
+    'render-qa-video.mjs is a legacy renderer. Use run-proof-video-pipeline.mjs for the default Playwright + validation + Deepgram + Remotion pipeline, or pass --legacy only for old QA artifact runs.'
+  );
+  process.exit(1);
 }
 
 const scriptDir = path.dirname(new URL(import.meta.url).pathname);

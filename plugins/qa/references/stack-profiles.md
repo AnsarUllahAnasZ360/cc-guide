@@ -16,21 +16,20 @@ QA should use project-specific commands from local docs and `package.json`. Thes
 - Run Convex-specific tests when the repo defines them.
 - Use Convex CLI for environment/deployment checks when needed.
 
-## ZScribeV2
+## Local Project Profiles
 
-Default commands:
+Build a profile from the target repository instead of assuming one global stack contract.
 
-- dependency install: `bun install --frozen-lockfile`
-- dev stack: `bun run dev`
-- targeted tests: `bun test <path>`
-- backend tests: `bun run test:convex`
-- API tests: `bun run test:api`
-- component tests: `bun run test:components`
-- smoke tests: `bun run test:smoke`
-- final gate: `bun run check`
+Look for:
 
-Default browser URL:
+- README and AGENTS instructions;
+- package scripts;
+- CI workflow commands;
+- framework config;
+- sprint verification checklist;
+- local setup scripts;
+- required environment variables;
+- documented test commands;
+- expected localhost URL and protocol.
 
-- `https://localhost:3001`
-
-Use seeded/demo data only for proof videos.
+Use seeded/demo data only for proof videos. Never use production data or real PHI unless the user explicitly approves a safe handling plan.
