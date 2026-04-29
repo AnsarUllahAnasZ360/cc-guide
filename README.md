@@ -328,7 +328,8 @@ cc-guide/
 │
 ├── plugins/
 │   ├── proof-driven-verification/ # ProofOps verification plugin
-│   └── sprint-protocol/           # Codex sprint lifecycle plugin
+│   ├── sprint-protocol/           # Codex sprint lifecycle plugin
+│   └── qa/                        # Codex QA verification plugin
 │
 ├── guides/
 │   ├── what-is-milhouse.md        # Philosophy and purpose
