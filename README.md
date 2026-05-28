@@ -15,6 +15,7 @@ And you've thought: *"Why can't I do that?"*
 **This repository is for you.** The developer who feels one step behind. The founder with ideas but no time. The team where only one person "gets" AI.
 
 A focused set of skills and plugins that make the complicated stuff simple:
+- **`/launchpad`** — Decide the mode (interactive / goal / workflow) and author a launch-ready goal for Claude Code, Codex, or Antigravity
 - **`/prd`** — Create PRDs through conversation, not writing
 - **`/ralph-preflight`** — Validate everything before starting a Ralph loop
 - **`/setup-claude`** — Configure your repo optimally without reading 100 docs
@@ -36,6 +37,7 @@ Plus guides on how to actually use Claude Code productively.
 npx github:AnsarUllahAnasZ360/cc-guide#main add-skill --all
 
 # Or add individually
+npx github:AnsarUllahAnasZ360/cc-guide#main add-skill launchpad
 npx github:AnsarUllahAnasZ360/cc-guide#main add-skill prd
 npx github:AnsarUllahAnasZ360/cc-guide#main add-skill ralph-preflight
 npx github:AnsarUllahAnasZ360/cc-guide#main add-skill setup-claude
@@ -139,6 +141,7 @@ DEEPGRAM_API_KEY=... node ~/plugins/qa/scripts/deepgram-key.mjs set
 In Claude Code:
 
 ```
+/launchpad              # Decide the mode + author a launch-ready goal
 /prd                    # Create a PRD for a new feature
 /ralph-preflight        # Validate config before starting Ralph loop
 /setup-claude init      # Set up a new repository
@@ -205,6 +208,23 @@ Start here:
 ---
 
 ## Skills
+
+### Launchpad Skill (`/launchpad`)
+
+The pre-flight front door for any non-trivial task. You brain-dump; it:
+
+1. Researches and understands (delegating to sub-agents)
+2. Recommends the mode — interactive, goal, or workflow — and the CLI, with the reason
+3. Grills you on the gaps in the middle — especially the definition of done
+4. Plans, gets your approval, then emits an adaptive artifact
+
+**The output is launch-ready:** a tight prompt for interactive work, or a full goal package (with delegation, definition of done, runtime logs, commit cadence, and verification baked in) for a goal or workflow — tailored to Claude Code, Codex, or Antigravity, using only each tool's officially supported features.
+
+Install globally so it's available in every project:
+
+```bash
+npx skills add AnsarUllahAnasZ360/cc-guide --skill launchpad -a claude-code -a codex -g -y
+```
 
 ### PRD Skill (`/prd`)
 
@@ -307,6 +327,7 @@ Each worktree can run its own tmux session with its own Ralph loop.
 ```
 cc-guide/
 ├── skills/
+│   ├── launchpad/            # Mode router + goal authoring (interactive/goal/workflow)
 │   ├── prd/                  # PRD creation skill
 │   │   ├── SKILL.md          # Entry point
 │   │   ├── AGENTS.md         # Comprehensive reference

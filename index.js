@@ -2,6 +2,7 @@
  * cc-guide - Claude Code and Codex skills, plugins, and guides
  *
  * This package provides skills and plugins:
+ * - launchpad: Decide the mode (interactive/goal/workflow) and author a launch-ready goal for Claude Code, Codex, or Antigravity
  * - prd: Create self-verifying PRDs for autonomous execution
  * - ralph-preflight: Validate Ralph TUI readiness before loops
  * - setup-claude: Initialize or audit repositories for Claude Code
@@ -23,6 +24,6 @@ module.exports = {
   skillsPath: path.join(__dirname, 'skills'),
   pluginsPath: path.join(__dirname, 'plugins'),
   templatesPath: path.join(__dirname, 'templates'),
-  availableSkills: ['prd', 'ralph-preflight', 'setup-claude', 'agent-browser', 'sprint-protocol'],
+  availableSkills: ['launchpad', 'prd', 'ralph-preflight', 'setup-claude', 'agent-browser', 'sprint-protocol'],
   availablePlugins: ['proof-driven-verification', 'sprint-protocol']
 };

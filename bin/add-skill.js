@@ -5,6 +5,10 @@ const os = require('os');
 const path = require('path');
 
 const AVAILABLE_SKILLS = {
+  'launchpad': {
+    description: 'Decide the mode (interactive/goal/workflow) and author a launch-ready goal for Claude Code, Codex, or Antigravity',
+    folder: 'launchpad'
+  },
   'prd': {
     description: 'Create self-verifying PRDs for autonomous execution',
     folder: 'prd'
