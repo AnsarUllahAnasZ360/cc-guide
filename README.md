@@ -209,6 +209,21 @@ Start here:
 
 ## Skills
 
+### Autosprint Skill (`/autosprint`)
+
+The dynamic-workflows successor to Sprint Protocol. One person architects, AI executes, engineers verify and ship:
+
+1. **Discover** — problem + solution research with small agent teams (never workflows), producing a decision-ready `research.md`
+2. **Plan** — epics and self-contained task specs with binary definitions of done, complexity scoring (never time estimates), and a human verification guide; the only human approval gate in the system
+3. **Launch** — a canonical bundled workflow executes it unattended: one fresh-context agent per task, per-task commits, an autonomous review-and-repair agent at the end of every epic, live claude.ai dashboard, then a completion report and a draft PR
+4. **Handoff** — your engineers get a PR carrying its plan, decision log, evidence, and verification playbook
+
+Optional Codex lane: route well-specified tasks to Codex CLI (`engine: "codex"`) while Claude supervises, reviews, and commits — burn both subscriptions productively.
+
+```bash
+npx skills add AnsarUllahAnasZ360/cc-guide --skill autosprint -a claude-code -g -y
+```
+
 ### Launchpad Skill (`/launchpad`)
 
 The pre-flight front door for any non-trivial task. You brain-dump; it:

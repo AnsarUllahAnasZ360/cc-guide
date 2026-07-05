@@ -1,0 +1,264 @@
+<title>Autosprint Dashboard</title>
+<style>
+  :root {
+    --bg:#0b0d12; --panel:#12151d; --card:#181c26; --line:#262b38; --line2:#303748;
+    --text:#eceef4; --dim:#98a1b3; --faint:#6b7385;
+    --ok:#3ddc97; --warn:#ffc53d; --bad:#ff6b6b; --run:#5aa7ff; --park:#b794f6; --skip:#7d8598;
+    --accent1:#f0a44a; --accent2:#3ddc97;
+  }
+  * { box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); margin:0; padding:0 0 48px;
+         font:15px/1.55 -apple-system,'Segoe UI',Roboto,sans-serif; }
+  .wrap { max-width:960px; margin:0 auto; padding:0 16px; }
+
+  header { padding:26px 0 18px; border-bottom:1px solid var(--line);
+           background:linear-gradient(180deg,rgba(240,164,74,.08),transparent); }
+  .kicker { font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent1); font-weight:600; }
+  h1 { font-size:1.45rem; margin:4px 0 6px; letter-spacing:-.01em; }
+  .goal { color:var(--dim); margin:0; max-width:64ch; }
+  .headrow { display:flex; gap:22px; align-items:center; flex-wrap:wrap; margin-top:16px; }
+  .ring { position:relative; width:92px; height:92px; flex:none; }
+  .ring svg { transform:rotate(-90deg); }
+  .ring .pct { position:absolute; inset:0; display:grid; place-items:center; font-size:1.15rem; font-weight:700; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 14px; min-width:86px; }
+  .stat b { display:block; font-size:1.15rem; }
+  .stat span { color:var(--faint); font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; }
+  .livebar { margin-top:12px; font-size:.85rem; color:var(--dim); }
+  .livebar .pulse { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--run);
+                    margin-right:7px; animation:pulse 1.6s infinite; vertical-align:1px; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .donebanner { display:inline-block; padding:3px 12px; border-radius:99px; background:#123527; color:var(--ok); font-weight:600; font-size:.85rem; }
+
+  nav { position:sticky; top:0; z-index:5; background:rgba(11,13,18,.92); backdrop-filter:blur(8px);
+        border-bottom:1px solid var(--line); }
+  nav .wrap { display:flex; gap:4px; overflow-x:auto; }
+  nav button { appearance:none; background:none; border:none; color:var(--dim); font:inherit; font-size:.9rem;
+               padding:13px 14px 11px; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; }
+  nav button.on { color:var(--text); border-bottom-color:var(--accent1); font-weight:600; }
+  nav button .n { background:var(--card); border:1px solid var(--line); border-radius:99px;
+                  font-size:.7rem; padding:1px 7px; margin-left:6px; color:var(--dim); }
+  .view { display:none; padding-top:20px; }
+  .view.on { display:block; }
+
+  .badge { font-size:.7rem; padding:2px 9px; border-radius:99px; white-space:nowrap; font-weight:600; }
+  .b-done,.b-clean,.b-pass { background:#123527; color:var(--ok); }
+  .b-repaired { background:#3a2f12; color:var(--warn); }
+  .b-failed,.b-blocked { background:#3a1717; color:var(--bad); }
+  .b-running { background:#12253a; color:var(--run); }
+  .b-pending { background:#212634; color:var(--faint); }
+  .b-parked,.b-skipped { background:#2a2140; color:var(--park); }
+  .b-done_with_concerns { background:#3a2f12; color:var(--warn); }
+  .chip { font-size:.68rem; color:var(--faint); border:1px solid var(--line2); border-radius:99px; padding:1px 7px; }
+
+  /* Overview */
+  .epicbar { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px 16px; margin-bottom:10px; }
+  .epicbar .top { display:flex; justify-content:space-between; gap:10px; align-items:baseline; }
+  .epicbar h3 { margin:0; font-size:.95rem; }
+  .meter { height:7px; background:var(--panel); border-radius:5px; overflow:hidden; margin-top:9px; }
+  .meter i { display:block; height:100%; background:linear-gradient(90deg,var(--accent1),var(--accent2)); border-radius:5px; }
+  .epicbar .sub { color:var(--faint); font-size:.78rem; margin-top:7px; }
+
+  /* Kanban */
+  .board { display:grid; grid-template-columns:repeat(4,minmax(215px,1fr)); gap:12px; overflow-x:auto; }
+  @media (max-width:760px){ .board { display:flex; } .col { min-width:240px; } }
+  .col { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px; }
+  .col h4 { margin:2px 4px 10px; font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; color:var(--dim);
+            display:flex; justify-content:space-between; }
+  .kcard { background:var(--card); border:1px solid var(--line2); border-radius:10px; padding:9px 11px; margin-bottom:8px; }
+  .kcard .id { font-size:.7rem; color:var(--accent1); font-weight:600; }
+  .kcard .t { font-size:.84rem; margin:2px 0 6px; }
+  .kcard .foot { display:flex; gap:6px; flex-wrap:wrap; }
+  .kcard.review-card { border-left:3px solid var(--accent1); }
+  .kcard .note { font-size:.76rem; color:var(--dim); margin-top:5px; }
+
+  /* Trajectory */
+  .tl { border-left:2px solid var(--line2); margin-left:9px; padding-left:22px; }
+  .tl-item { position:relative; margin-bottom:16px; }
+  .tl-item::before { content:''; position:absolute; left:-28px; top:5px; width:10px; height:10px; border-radius:50%;
+                     background:var(--faint); border:2px solid var(--bg); }
+  .tl-item.e-done::before { background:var(--ok); } .tl-item.e-fail::before { background:var(--bad); }
+  .tl-item.e-run::before { background:var(--run); animation:pulse 1.6s infinite; }
+  .tl-item.e-review::before { background:var(--accent1); }
+  .tl-epic { font-size:1rem; font-weight:700; margin:26px 0 10px; color:var(--accent1); }
+  .tl time { color:var(--faint); font-size:.72rem; }
+  .tl .what { font-size:.88rem; }
+  .tl .detail { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 13px;
+                margin-top:6px; font-size:.82rem; color:var(--dim); }
+  .tl .detail b { color:var(--text); }
+  .tl .detail ul { margin:4px 0 2px; padding-left:18px; }
+
+  /* Decisions */
+  .dq { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:2px 16px; margin-bottom:14px; }
+  .dq p { border-top:1px solid var(--line); padding:10px 0; margin:0; font-size:.86rem; }
+  .dq p:first-of-type { border-top:none; }
+  .dq time { color:var(--faint); font-size:.72rem; display:block; margin-bottom:2px; }
+  .dq .q { color:var(--warn); }
+  .empty { color:var(--faint); font-style:italic; padding:14px 4px; }
+  section h3.sec { font-size:.8rem; color:var(--dim); text-transform:uppercase; letter-spacing:.08em; margin:4px 0 10px; }
+</style>
+
+<header><div class="wrap">
+  <div class="kicker">Autosprint</div>
+  <h1 id="title"></h1>
+  <p class="goal" id="goal"></p>
+  <div class="headrow">
+    <div class="ring">
+      <svg width="92" height="92" viewBox="0 0 92 92">
+        <circle cx="46" cy="46" r="40" fill="none" stroke="var(--line)" stroke-width="8"/>
+        <circle id="ringArc" cx="46" cy="46" r="40" fill="none" stroke="url(#g)" stroke-width="8"
+                stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#f0a44a"/><stop offset="1" stop-color="#3ddc97"/>
+        </linearGradient></defs>
+      </svg>
+      <div class="pct" id="pct"></div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="livebar" id="livebar"></div>
+</div></header>
+
+<nav><div class="wrap">
+  <button data-v="overview" class="on">Overview</button>
+  <button data-v="kanban">Kanban</button>
+  <button data-v="trajectory">Trajectory</button>
+  <button data-v="decisions">Decisions <span class="n" id="dqCount"></span></button>
+</div></nav>
+
+<div class="wrap">
+  <div class="view on" id="v-overview"></div>
+  <div class="view" id="v-kanban"></div>
+  <div class="view" id="v-trajectory"></div>
+  <div class="view" id="v-decisions"></div>
+</div>
+
+<script>
+  const META = __SPRINT_META__;    // {id,title,goal,startedAt,epics:[{id,title,tasks:[{id,title,complexity,engine}]}]}
+  const EVENTS = __SPRINT_EVENTS__; // ledger lines, oldest first
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmt = ts => ts ? String(ts).replace('T',' ').replace('Z',' UTC') : '';
+
+  // ---- derived state ------------------------------------------------------
+  const last = {};
+  for (const e of EVENTS) if (e.event && e.event.startsWith('task_')) last[e.actor] = e;
+  const mergeFailed = new Set(EVENTS.filter(e => e.event === 'wave_merged').flatMap(e => e.failed || []));
+  const tState = id => {
+    if (mergeFailed.has(id)) return 'failed';
+    const e = last[id]; if (!e) return 'pending';
+    return { task_started:'running', task_done:'done', task_failed:'failed', task_blocked:'blocked' }[e.event] || 'pending';
+  };
+  const reviews = {};
+  for (const e of EVENTS) if (e.event === 'epic_review') reviews[e.actor.replace(/-review$/,'')] = e;
+  const eState = ep => {
+    if (reviews[ep.id]) return reviews[ep.id].verdict || 'clean';
+    const st = ep.tasks.map(t => tState(t.id));
+    if (st.some(s => s === 'running')) return 'running';
+    if (st.every(s => s === 'pending')) return 'pending';
+    return 'running';
+  };
+  const allTasks = META.epics.flatMap(ep => ep.tasks);
+  const counts = { done:0, running:0, failed:0, blocked:0, pending:0 };
+  allTasks.forEach(t => counts[tState(t.id)]++);
+  const finished = counts.done;
+  const pctVal = allTasks.length ? Math.round(100 * finished / allTasks.length) : 0;
+  const doneEv = EVENTS.find(e => e.event === 'sprint_completed');
+  const running = allTasks.filter(t => tState(t.id) === 'running');
+  const lastEv = EVENTS[EVENTS.length - 1];
+
+  // ---- header -------------------------------------------------------------
+  document.getElementById('title').textContent = `${META.id} — ${META.title}`;
+  document.getElementById('goal').textContent = META.goal;
+  document.getElementById('pct').textContent = pctVal + '%';
+  document.getElementById('ringArc').style.strokeDashoffset = (251.3 * (1 - pctVal / 100)).toFixed(1);
+  const reviewedCount = Object.keys(reviews).length;
+  document.getElementById('stats').innerHTML = [
+    [finished + '/' + allTasks.length, 'tasks done'],
+    [reviewedCount + '/' + META.epics.length, 'epics reviewed'],
+    [counts.failed + counts.blocked, 'attention'],
+    [doneEv ? (doneEv.commits ?? '—') : '…', 'commits'],
+  ].map(([b, l]) => `<div class="stat"><b>${b}</b><span>${l}</span></div>`).join('');
+  document.getElementById('livebar').innerHTML = doneEv
+    ? `<span class="donebanner">Sprint completed</span> &nbsp; +${doneEv.insertions ?? '?'} / −${doneEv.deletions ?? '?'} lines · started ${fmt(META.startedAt)}`
+    : running.length
+      ? `<span class="pulse"></span>Now running: ${running.map(t => `<b>${esc(t.id)}</b> ${esc(t.title)}`).join(' · ')} <span style="color:var(--faint)">· last event ${fmt(lastEv && lastEv.ts)}</span>`
+      : `<span class="pulse"></span>Run active · last event ${fmt(lastEv ? lastEv.ts : META.startedAt)}`;
+
+  // ---- overview -----------------------------------------------------------
+  document.getElementById('v-overview').innerHTML = META.epics.map(ep => {
+    const st = eState(ep);
+    const d = ep.tasks.filter(t => tState(t.id) === 'done').length;
+    const r = reviews[ep.id];
+    return `<div class="epicbar">
+      <div class="top"><h3>${esc(ep.id)}: ${esc(ep.title)}</h3><span class="badge b-${esc(st)}">${esc(st)}</span></div>
+      <div class="meter"><i style="width:${ep.tasks.length ? (100 * d / ep.tasks.length) : 0}%"></i></div>
+      <div class="sub">${d}/${ep.tasks.length} tasks${r ? ` · review: ${esc(r.summary || r.verdict)}` : ''}</div>
+    </div>`;
+  }).join('');
+
+  // ---- kanban -------------------------------------------------------------
+  const lanes = { pending:['Queued'], running:['In progress'], done:['Done'], attention:['Needs attention'] };
+  const lane = t => { const s = tState(t.id); return (s === 'done' || s === 'running' || s === 'pending') ? s : 'attention'; };
+  document.getElementById('v-kanban').innerHTML = `<div class="board">` + Object.keys(lanes).map(k => {
+    const cards = allTasks.filter(t => lane(t) === k);
+    return `<div class="col"><h4>${lanes[k][0]}<span>${cards.length}</span></h4>` + (cards.map(t => {
+      const e = last[t.id] || {}; const s = tState(t.id);
+      return `<div class="kcard"><span class="id">${esc(t.id)}</span><div class="t">${esc(t.title)}</div>
+        ${e.summary && k !== 'pending' ? `<div class="note">${esc(e.summary)}</div>` : ''}
+        <div class="foot"><span class="badge b-${esc(s)}">${esc(s)}</span><span class="chip">${esc(t.complexity || '')}</span>${t.engine === 'codex' ? '<span class="chip">codex</span>' : ''}</div>
+      </div>`;
+    }).join('') || '<div class="empty">Empty</div>') + `</div>`;
+  }).join('') + `</div>`;
+
+  // ---- trajectory ---------------------------------------------------------
+  document.getElementById('v-trajectory').innerHTML = META.epics.map(ep => {
+    const evs = EVENTS.filter(e => e.actor === ep.id + '-review' || e.actor === ep.id + '-merge' || ep.tasks.some(t => t.id === e.actor));
+    if (!evs.length) return `<div class="tl-epic">${esc(ep.id)}: ${esc(ep.title)}</div><div class="tl"><div class="empty">Not started yet.</div></div>`;
+    return `<div class="tl-epic">${esc(ep.id)}: ${esc(ep.title)}</div><div class="tl">` + evs.map(e => {
+      if (e.event === 'wave_merged') {
+        const bad = (e.failed || []).length;
+        return `<div class="tl-item ${bad ? 'e-fail' : 'e-review'}"><time>${fmt(e.ts)}</time>
+          <div class="what">Parallel wave integrated — ${(e.integrated || []).length} task(s) landed${bad ? `, <b>${bad} failed integration: ${e.failed.map(esc).join(', ')}</b>` : ''}</div></div>`;
+      }
+      if (e.event === 'epic_review') {
+        const items = [
+          e.fixes && e.fixes.length ? `<b>Fixed:</b><ul>${e.fixes.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '<b>Fixed:</b> nothing needed',
+          e.risks && e.risks.length ? `<b>Risks:</b><ul>${e.risks.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : '',
+        ].filter(Boolean).join('');
+        return `<div class="tl-item e-review"><time>${fmt(e.ts)}</time>
+          <div class="what">Epic review → <span class="badge b-${esc(e.verdict)}">${esc(e.verdict)}</span></div>
+          <div class="detail">${e.summary ? esc(e.summary) + '<br>' : ''}${items}</div></div>`;
+      }
+      const cls = e.event === 'task_done' ? 'e-done' : e.event === 'task_started' ? 'e-run' : 'e-fail';
+      const verb = { task_started:'started', task_done:'completed', task_failed:'failed', task_blocked:'blocked' }[e.event] || e.event;
+      return `<div class="tl-item ${cls}"><time>${fmt(e.ts)}</time>
+        <div class="what"><b>${esc(e.actor)}</b> ${verb}${e.summary ? ` — ${esc(e.summary)}` : ''}</div>
+        ${e.insights && e.insights.length ? `<div class="detail"><b>Insights:</b><ul>${e.insights.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>` : ''}
+      </div>`;
+    }).join('') + `</div>`;
+  }).join('') + (() => {
+    const sr = EVENTS.find(e => e.event === 'sprint_review');
+    const sc = EVENTS.find(e => e.event === 'sprint_completed');
+    if (!sr && !sc) return '';
+    return `<div class="tl-epic">Ship</div><div class="tl">` +
+      (sr ? `<div class="tl-item e-review"><time>${fmt(sr.ts)}</time><div class="what">Sprint-level review → <span class="badge b-${esc(sr.verdict || 'clean')}">${esc(sr.verdict || 'done')}</span></div>${sr.summary ? `<div class="detail">${esc(sr.summary)}</div>` : ''}</div>` : '') +
+      (sc ? `<div class="tl-item e-done"><time>${fmt(sc.ts)}</time><div class="what">Completion report & PR — ${sc.commits ?? '?'} commits, +${sc.insertions ?? '?'}/−${sc.deletions ?? '?'}</div></div>` : '') + `</div>`;
+  })();
+
+  // ---- decisions & questions ----------------------------------------------
+  const dec = EVENTS.flatMap(e => (e.decisions || []).map(d => ({ ts: e.ts, actor: e.actor, txt: d, q: false })));
+  const qs  = EVENTS.flatMap(e => (e.questions || []).map(d => ({ ts: e.ts, actor: e.actor, txt: d, q: true })));
+  document.getElementById('dqCount').textContent = dec.length + qs.length;
+  document.getElementById('v-decisions').innerHTML =
+    `<section><h3 class="sec">Questions for you — assumptions worth reviewing</h3><div class="dq">` +
+    (qs.length ? qs.slice().reverse().map(x => `<p class="q"><time>${fmt(x.ts)} · ${esc(x.actor)}</time>${esc(x.txt)}</p>`).join('') : '<div class="empty">No open questions.</div>') +
+    `</div></section><section><h3 class="sec">Decisions made autonomously</h3><div class="dq">` +
+    (dec.length ? dec.slice().reverse().map(x => `<p><time>${fmt(x.ts)} · ${esc(x.actor)}</time>${esc(x.txt)}</p>`).join('') : '<div class="empty">None recorded yet.</div>') +
+    `</div></section>`;
+
+  // ---- tabs ---------------------------------------------------------------
+  document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + b.dataset.v));
+  }));
+</script>

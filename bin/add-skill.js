@@ -28,6 +28,10 @@ const AVAILABLE_SKILLS = {
   'sprint-protocol': {
     description: 'Cross-agent sprint protocol for Claude, Codex, and Cloud Code',
     folder: 'sprint-protocol'
+  },
+  'autosprint': {
+    description: 'Plan sprints with agent research, execute them autonomously via dynamic workflows, hand off a verified PR',
+    folder: 'autosprint'
   }
 };
 
