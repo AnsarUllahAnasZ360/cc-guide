@@ -32,6 +32,10 @@ const AVAILABLE_SKILLS = {
   'autosprint': {
     description: 'Plan sprints with agent research, execute them autonomously via dynamic workflows, hand off a verified PR',
     folder: 'autosprint'
+  },
+  'essayist': {
+    description: 'Turn dictated thoughts into a verified, personal technical essay with figures, citations, and parallel review agents',
+    folder: 'essayist'
   }
 };
 
