@@ -21,6 +21,7 @@ A focused set of skills and plugins that make the complicated stuff simple:
 - **`/setup-claude`** — Configure your repo optimally without reading 100 docs
 - **`/agent-browser`** — Browser automation for verifying UI actually works
 - **`/essayist`** — Turn dictated thoughts into a verified, personal technical essay with figures, citations, and parallel review agents
+- **`/audit-run`** — Audit an agent run end to end: evidence, cost/time accounting, forensics, a documented fix plan, then agent-team execution
 - **ProofOps Verification** — Review branches, fix issues, capture browser proof, and render proof videos
 - **Sprint Protocol** — Run Codex-native research, stories, execution, optional QA verification, and PR handoff
 - **QA** — Run Codex-native end-to-end QA with Browser Use, tests, fixes, documentation, and narrated proof videos
@@ -44,6 +45,7 @@ npx github:AnsarUllahAnasZ360/cc-guide#main add-skill ralph-preflight
 npx github:AnsarUllahAnasZ360/cc-guide#main add-skill setup-claude
 npx github:AnsarUllahAnasZ360/cc-guide#main add-skill agent-browser
 npx github:AnsarUllahAnasZ360/cc-guide#main add-skill essayist
+npx github:AnsarUllahAnasZ360/cc-guide#main add-skill audit-run
 ```
 
 ### Install Sprint Protocol With skills.sh

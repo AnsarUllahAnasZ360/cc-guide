@@ -36,6 +36,10 @@ const AVAILABLE_SKILLS = {
   'essayist': {
     description: 'Turn dictated thoughts into a verified, personal technical essay with figures, citations, and parallel review agents',
     folder: 'essayist'
+  },
+  'audit-run': {
+    description: 'Audit an agent run end to end — evidence, cost/time accounting, behavior forensics, judgment, a documented fix plan, then agent-team execution',
+    folder: 'audit-run'
   }
 };
 
